@@ -35,8 +35,3 @@ data_1.iloc[1]
 len(data_1.iloc[1]['reviews'][1]['encoded_comment'])
 len(data_1.iloc[1]['description_encoding'])
 #|%%--%%| <eobttcfESU|qHOLAsV6DK>
-
-
-
-
-
