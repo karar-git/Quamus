@@ -1,6 +1,7 @@
 *.csv
 
 *.tex
+*.pdf
 *.json
 !models/combined_dataset.json
 *jukit
