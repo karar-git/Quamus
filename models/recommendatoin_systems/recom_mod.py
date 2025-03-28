@@ -11,7 +11,7 @@ import pandas as pd
 from sentence_transformers import SentenceTransformer, util
 import torch
 
-course_data = pd.read_json('../models/data/encoded_data.json')
+course_data = pd.read_json('../data/encoded_data.json')
 
 course_embeddings = np.stack(course_data['description_encoding'].values)
 
@@ -37,7 +37,9 @@ def get_course_recommendations(user_query, top_k=5):
 
 # Example usage:
 user_query = "ayoooo, i wanna learn NLP in practical way"
+user_query='i wanna learn linear algebra rigorosly'
+user_query='i wanna project to learn RAG, from deeplearning.ai'
 recommended_courses = get_course_recommendations(user_query, top_k=3)
-
 for course in recommended_courses:
-    print(f"Course: {course['course_name']}, Level: {course['level']}, Skills: {course['skills']}")
+    print(f"Course: {course['course_name']}, Level: {course['level']}, Skills: {course['skills']}, provider : {course['provider']}, url : {course['url']}, type: {course['type']}, orginization: {course['organization']}")
+
