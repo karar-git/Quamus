@@ -232,14 +232,7 @@ class Regist(QWidget):
         
         main_layout.addWidget(container_widget, alignment=Qt.AlignmentFlag.AlignCenter)
         
-        
-        
-
-        
-        
-        
-        
-        
+   
         
 app = QApplication(sys.argv)
 app.setStyleSheet("""
