@@ -207,7 +207,7 @@ class Regist(QWidget):
                    
     QPushButton:hover {
         background-color: #f1a8a1;  /* Light red color when hovered */
-        font-size: 20px;
+        font-size: 20px;}
                               
                               
                               """)
