@@ -7,4 +7,4 @@
 *jukit
 models/my_vect_model
 resources_for_recom/
-
+*__pycache__
