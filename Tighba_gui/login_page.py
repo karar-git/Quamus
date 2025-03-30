@@ -1,10 +1,10 @@
 from PyQt6.QtWidgets import (
     QApplication, QWidget, QPushButton, QLabel,
-    QLineEdit, QGridLayout, QHBoxLayout, QVBoxLayout
+    QLineEdit, QGridLayout, QHBoxLayout, QVBoxLayout,QTextEdit, QFrame, QScrollArea
 )
 from PyQt6 import QtWidgets
 import sys
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt,QTimer
 from PyQt6.QtGui import QIcon, QPixmap
 
 class Login(QWidget):
@@ -13,7 +13,7 @@ class Login(QWidget):
        
         layout = QVBoxLayout()
         self.setLayout(layout)
-       
+        
         # Logo/Image
         label = QLabel(self)
         pixmap = QPixmap("/home/teeba/Documents/cppDS/photo_2025-03-27_15-33-18-removebg-preview.png") 
@@ -124,9 +124,11 @@ class Login(QWidget):
         main_layout.addWidget(container_widget, alignment=Qt.AlignmentFlag.AlignCenter)
         
         button1.clicked.connect(self.goToRegist)
-
+        button2.clicked.connect(self.goToMain)
     def goToRegist(self):
         self.parent().setCurrentIndex(1)  # Switch to registration window
+    def goToMain(self):
+        self.parent().setCurrentIndex(2)#Switch to main chat window
         
         
 class Regist(QWidget):
@@ -232,7 +234,126 @@ class Regist(QWidget):
         
         main_layout.addWidget(container_widget, alignment=Qt.AlignmentFlag.AlignCenter)
         
-   
+
+class MessageBubble(QFrame):
+    def __init__(self, text, sender):
+        super().__init__()
+        layout = QHBoxLayout()
+        label = QLabel(text)
+        label.setWordWrap(True)
+        
+        if sender == "User":
+            label.setStyleSheet("background-color:white; padding: 10px; border-radius: 10px;")
+            layout.addStretch()
+            layout.addWidget(label)
+            
+        else:
+            #This gonna be for the bot and the messege will be aligned to the left
+            label.setStyleSheet("background-color: #4F949D ; padding: 10px; border-radius: 10px;color:white")
+            layout.addWidget(label)
+            layout.addStretch()
+        
+        self.setLayout(layout)
+        
+        
+class ModernChatbot(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.init_ui()
+
+    def init_ui(self):
+        self.setWindowTitle("Modern Chatbot")
+        self.setGeometry(100, 100, 400, 500)
+        self.setStyleSheet("background-color: #d4cebe")
+
+        layout = QVBoxLayout()
+        
+        self.scroll_area = QScrollArea()
+        self.scroll_area.setWidgetResizable(True)
+        self.chat_container = QWidget()
+        self.chat_layout = QVBoxLayout(self.chat_container)
+        self.chat_layout.addStretch()
+        
+        self.scroll_area.setWidget(self.chat_container)
+        layout.addWidget(self.scroll_area)
+        
+        input_layout = QHBoxLayout()
+        self.input_field = QLineEdit()
+        self.input_field.setStyleSheet("border: 2px solid #ccc; border-radius: 5px; padding: 5px;background-color:white")
+        self.input_field.returnPressed.connect(self.handle_message)  #Enter key handling
+        input_layout.addWidget(self.input_field)
+        
+        self.send_button = QPushButton("Send")
+        self.send_button.setStyleSheet("background-color: #007BFF; color: white; border-radius: 5px; padding: 5px;")
+        self.send_button.clicked.connect(self.handle_message)
+        input_layout.addWidget(self.send_button)
+        
+        layout.addLayout(input_layout)
+        self.setLayout(layout)
+
+
+
+
+    def add_message(self, text, sender):
+        message_bubble = MessageBubble(text, sender)
+        self.chat_layout.insertWidget(self.chat_layout.count() - 1, message_bubble)
+        self.scroll_area.verticalScrollBar().setValue(self.scroll_area.verticalScrollBar().maximum())
+
+
+    def handle_message(self):
+        user_message = self.input_field.text().strip()
+        if user_message:
+            self.last_user_message = user_message  # Store the message before clearing the animation of dots
+            self.add_message(user_message, "User")
+            self.input_field.clear()
+            self.show_typing_animation()
+
+
+    def show_typing_animation(self):
+        self.typing_bubble = MessageBubble(". .", "Bot")
+        self.chat_layout.insertWidget(self.chat_layout.count() - 1, self.typing_bubble)
+        self.scroll_area.verticalScrollBar().setValue(self.scroll_area.verticalScrollBar().maximum())
+        self.typing_index = 0
+        self.typing_animation = [". . .", ". .", "."]
+        self.typing_timer = QTimer()
+        self.typing_timer.timeout.connect(self.update_typing_animation)
+        self.typing_timer.start(500)
+
+    def update_typing_animation(self):
+        if self.typing_index < len(self.typing_animation):
+            self.typing_bubble.layout().itemAt(0).widget().setText(self.typing_animation[self.typing_index])
+            self.typing_index += 1
+        else:
+            self.typing_timer.stop()
+            self.chat_layout.removeWidget(self.typing_bubble)
+            self.typing_bubble.deleteLater()
+            QTimer.singleShot(500, self.show_bot_response)  # Delay before response
+
+    def show_bot_response(self):
+        bot_response = self.get_response(self.last_user_message)
+        self.add_message(bot_response, "Bot")
+
+#Testing the gui with a simple bot(we gonna add your bot later instead)
+    def get_response(self, message):
+        responses = {
+            "hii": "Hi there!",
+            "how are you": "I'm just a bot,i dont have feelings to response to such questions!",
+            "bye": "Goodbye! Have a nice day!",
+            "have a nice day": "thankss,you too"
+        }
+        return responses.get(message.lower(), "Hey, say something understandable!.")
+
+        
+        
+        
+        
+        
+
+        
+        
+        
+        
+        
         
 app = QApplication(sys.argv)
 app.setStyleSheet("""
@@ -244,13 +365,19 @@ widget = QtWidgets.QStackedWidget()
 widget.setWindowIcon(QIcon("/home/teeba/Documents/cppDS/photo_2025-03-27_15-33-18-removebg-preview.png"))
 widget.resize(350, 320)  
 widget.setWindowTitle(" Quamus ")
-mainWindow = Login()
-RegistWindow = Regist()
 
-widget.addWidget(mainWindow)
-widget.addWidget(RegistWindow)
+
+login=Login()
+regist=Regist()
+main_chat=ModernChatbot()
+widget.addWidget(login)
+widget.addWidget(regist)
+widget.addWidget(main_chat)
+
 widget.setStyleSheet("background-color:#4F949D ")
-widget.setCurrentIndex(0)  # Start with Login screen
+widget.setCurrentIndex(0)  # Start with login
 widget.show()
 
 sys.exit(app.exec())
+
+
