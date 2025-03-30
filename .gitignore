@@ -1,10 +1,15 @@
-*.csv
-*.npy
-*.tex
-*.pdf
-*.json
+# Ignore specific file types globally
+**/*.csv
+**/*.npy
+**/*.tex
+**/*.pdf
+**/*.json
+
+# Exception for a specific JSON file
 !models/combined_dataset.json
-*jukit
-models/my_vect_model
+
+# Ignore directories and specific files
+**/*jukit
+**/__pycache__/
+models/my_vect_model/
 resources_for_recom/
-*__pycache__
