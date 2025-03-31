@@ -57,7 +57,7 @@ def all_data(data):
     dataa = pipe_for_sim(data)
     normalization_layer = tf.keras.layers.Normalization()
     normalization_layer.adapt(dataa)
-    tf.saved_model.save(,normalization_layer, 'norm_layer')
+    tf.saved_model.save(normalization_layer, 'norm_layer')
     encoded_data = normalization_layer(dataa)
 
     return encoded_data
