@@ -6,7 +6,7 @@ from tensorflow.keras.models import Model
 
 import pandas as pd
 from sklearn.preprocessing import MultiLabelBinarizer
-#autoencoder :)
+#autoencoder
 class autoencoder(Model):
     def __init__(self, input_size: tuple or int, latent_dimension: tuple or int) -> None:
         super().__init__()
@@ -18,10 +18,7 @@ class autoencoder(Model):
         layers.Dense(input_size[0], activation= 'sigmoid')
         ])
     def call(self, data):
-        encoded = self.encoder(data)
-        decoded = self.decoder(encoded)
-
-        return decoded
+        return self.decoder(self.encoder(data))
 def main():
     data = pd.read_json('./combined_dataset.json').copy()['skills']
 
@@ -35,16 +32,13 @@ def main():
     modelly.compile(optimizer = 'adam', loss= losses.BinaryCrossentropy, metrics = ["accuracy"])
 
     early_stopping = EarlyStopping(
-        monitor='val_loss',  # Metric to monitor (e.g., 'val_loss' or 'val_accuracy')
-        patience=3,          # Number of epochs to wait before stopping if no improvement
-        restore_best_weights=True  # Restores the best weights when stopping
+        monitor='val_loss',
+        patience=3,
+        restore_best_weights=True
     )
     modelly.fit(x_1,x_1, epochs=100, batch_size=128, shuffle=True, validation_data=(y, y), callbacks = [early_stopping])
 
-    encoded = modelly.encoder(x)
-    #normalization_layer = tf.keras.layers.Normalization()
-    #normalization_layer.adapt(encoded)
-    #encoded = normalization_layer(encoded)
+    modelly.encoder.save('../recommendatoin_systems/final_Models/encoder_skill.keras')
 
 if __name__ == "__main__":
     main()
