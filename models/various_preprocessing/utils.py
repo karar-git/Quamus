@@ -6,7 +6,7 @@ from tensorflow.keras.models import Model
 
 import pandas as pd
 from sklearn.preprocessing import MultiLabelBinarizer
-
+#autoencoder :)
 class autoencoder(Model):
     def __init__(self, input_size: tuple or int, latent_dimension: tuple or int) -> None:
         super().__init__()
@@ -42,9 +42,9 @@ def main():
     modelly.fit(x_1,x_1, epochs=100, batch_size=128, shuffle=True, validation_data=(y, y), callbacks = [early_stopping])
 
     encoded = modelly.encoder(x)
-    normalization_layer = tf.keras.layers.Normalization()
-    normalization_layer.adapt(encoded)
-    encoded = normalization_layer(encoded)
+    #normalization_layer = tf.keras.layers.Normalization()
+    #normalization_layer.adapt(encoded)
+    #encoded = normalization_layer(encoded)
 
 if __name__ == "__main__":
     main()

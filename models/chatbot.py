@@ -3,7 +3,7 @@ stuff to try:
 1-generate_text instead of chat
 other llms
 """
-from recommendatoin_systems.recom_mod import *
+#from recommendatoin_systems.recom_mod import *
 import google.generativeai as genai
 
 genai.configure(api_key="AIzaSyA4MILwVj31XawUJSt3xmdsS2yDRA3wnGY")
