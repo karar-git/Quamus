@@ -2,4 +2,6 @@ normalization_layer for the normalization
 encoder_skill for the skills autoencoder
 mlb_skill for mlb of the skills
 
+combined_dataset for the combined_dataset or at least its columns, if so edit the chatbot file generate_recom
+
 my_vect_model for paraphrase-MiniLM-L12-v2

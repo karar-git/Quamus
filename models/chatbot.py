@@ -1,53 +1,119 @@
-"""
-stuff to try:
-1-generate_text instead of chat
-other llms
-"""
-#from recommendatoin_systems.recom_mod import *
+#do not forget to uncomment _generate...
 import google.generativeai as genai
+from models.various_preprocessing.similarity_preprocessing import user_embedding
+import pandas as pd
+import re
 
 genai.configure(api_key="AIzaSyA4MILwVj31XawUJSt3xmdsS2yDRA3wnGY")
 
-# Initialize the chat model
-model = genai.GenerativeModel("gemini-2.0-flash")
-chat_session = model.start_chat(
-    history=[
+class CourseRecommenderBot:
+    def __init__(self):
+        self.model = genai.GenerativeModel("gemini-2.0-flash")
+        self.chat = self.model.start_chat()#history=[])
+        #self.required_fields = ['skills', 'level']
+        self.conversation_history = []
+        
+        # Initialize with system prompt
+        self._append_to_history("system_prompt", '''
+        You are a course recommendation expert. Your task is to:
+        1. Extract course preferences from user queries
+        2. if the user ask about somehting not related to course recommendation tell him am a recommender system only
+        3. Maintain natural conversation flow
+        4. when wanna recommending responsd with PROCEED
+        
+        Always respond in EXACTLY ONE of these formats:
+        
+        [When extracting features]
+        level: <Beginner|Intermediate|Advanced|mix|N/A>
+        skills: <comma-separated list>
+        type: <course|project|N/A>
+        duration: <number in hours|N/A> if u can inference it, u can like if it is short then around 2 hourse, 15 for mid, 30 for long courses, if u can't inference it just let it be N/A
+        provider: <coursera|edx|N/A>
+        number_of_recommendation: <maximam is 10, default is 5>
+        do not lower the case or capilize it, just as how i wrote it (Beginner not beginner, mix not Mix)
 
-        {"role": "model", "parts": [{"text":"""You are a course recommendation assistant. Your task is to check if the user want a recommendations or just asks other questions, if the questions isn't related to the task just tell him am a recommender system only. If all required details are present, respond with: 'PROCEED' only."""}]}
-    ]
-)
-
-
-def format_recommendations(results, user_query):
-    """
-    Uses Gemini to format raw recommendation results into a conversational message.
+        [When the user asks about something not related to course recommendation]
+        NOT RECOMMENDATION: <maintain conversational flow but tell him that this is QUAMUS which is a recommendation system duck >
+        ''')
     
-    Args:
-        results: The raw output (e.g. a list or dictionary) from your recommendation system.
-        user_query: The original user query.
+    def _append_to_history(self, role, text):
+        self.chat.history.append({'role': 'user' if role == 'user' else 'model', 'parts': [{'text': text}]})
+        self.conversation_history.append({
+            "role": role,
+            "content": text,
+            "timestamp": len(self.conversation_history)
+        })
     
-    Returns:
-        A string with a friendly, conversational message.
-    """
-    prompt = (
-        "You are a helpful assistant that reformats course recommendations in a friendly, personalized way. "
-        "The user previously showed interest in courses similar to those below. "
-        "Now, the user asked: '{}' \n"
-        "Here are the raw recommendations: {} \n"
-        "Please generate a conversational response that suggests these courses, mentioning that since the user liked similar topics before, "
-        "these courses might be useful."
-    ).format(user_query, results)
+    def _extract_structured_data(self, response):
+        pattern = r'(level|skills|type|duration|provider|number_of_recommendation):\s*(.*)'
+        matches = re.findall(pattern, response)
+        return {k: v.strip() for k, v in matches}
     
-    # Use the Gemini model to generate the formatted response.
-    formatted_response = model.generate_content(prompt)
-    return formatted_response.text
+    #def _needs_clarification(self, data):
+    #    missing = [field for field in self.required_fields if not data.get(field) or data[field].lower() == 'n/a']
+    #    return missing
+    
+    def _generate_recommendations(self, criteria, user_input):
+        #user_vector = pd.DataFrame(columns = combined_dataset.columns)
+        #for i in criteria.keys[1:]:
+            #user_vector[i] = criteria[i]
+        #user_vector['description'] = user_input
+        #user_vector = user_embedding(user_vector)
+        
+        #recommendations = recommender.recommed(user_vector)
+        #formatted_response = self._format_with_llm(recommendations)
+        #return formatted_response
 
-def chat(message):
-    global chat_session
-    response = chat_session.send_message(message)  # Send message using chat
-    #if "PROCEED" ==response.text:
-    #    results = my_model.predit(someinputs, message)
-    #    return chat_session.format_recommendations(results, message)
-    return response.text
+        return "help"
+    
+    def _format_with_llm(self, recommendations):
+        # Construct a prompt for the LLM
+        prompt = (
+            "You are a helpful assistant that formats raw course recommendations into a friendly and "
+            "engaging message. The raw recommendations are provided below. Please rephrase them into a beautiful, "
+            "conversational response that is easy for the user to understand.\n\n"
+            "Raw Recommendations:\n"
+            f"{recommendations}\n\n"
+            "Formatted Response:"
+        )
+    
+        response = self.model.generate_content(prompt)
+        return response.text
+    def handle_message(self, user_input):
+        # Add user message to history
+        self._append_to_history("user", user_input)
+        
+        # Get AI response
+        if user_input == "":
+            user_input += " "
+        response = self.chat.send_message(user_input).text
+        
+        # Check response type
+        if "NOT RECOMMENDATION:" in response:
+            # Clarification needed
+            self._append_to_history("assistant", response)
+            return response.split("NOT RECOMMENDATION:")[-1].strip()
+        
+        else:
+            # Extract structured data
+            data = self._extract_structured_data(response)
+            print(data)
 
+            formatted_response= self._generate_recommendations(data, user_input)
+            #rec_text = "\n".join(recommendations)
+            #formatted_response = f"RECOMMEND: Here are some courses you might like:\n{rec_text}"
+            self._append_to_history("assistant", formatted_response)
+            return formatted_response
 
+# Usage Example
+bot = CourseRecommenderBot()
+
+# Conversation flow
+print("Bot: Hi, Am Quamus! What kind of course are you looking for?")
+while True:
+    user_input = input("You: ")
+    if "exit" in user_input.lower():
+        break
+    response = bot.handle_message(user_input)
+    print(f"Bot: {response}")
+    
