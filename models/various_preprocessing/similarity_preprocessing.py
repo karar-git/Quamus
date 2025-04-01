@@ -55,7 +55,7 @@ def pipe_for_sim(data):
 #normalization_layer = tf.keras.layers.Normalization()
 def all_data(data):
 
-    data['skills'] = data['skills'].apply(lambda x: [] if x == ['NaN'] else x)
+    #data['skills'] = data['skills'].apply(lambda x: [] if x == ['NaN'] else x)
     dataa = pipe_for_sim(data)
     normalization_layer = tf.keras.layers.Normalization()
     normalization_layer.adapt(dataa)

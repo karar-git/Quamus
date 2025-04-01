@@ -57,7 +57,7 @@ class CourseRecommenderBot:
     
     def _generate_recommendations(self, criteria, user_input):
         #user_vector = pd.DataFrame(columns = combined_dataset.columns)
-        #criteria['skills'] = criteria['skills'].split(',') if criteria['skills'] != "N/A" else []
+        #criteria['skills'] = criteria['skills'].split(',') if criteria['skills'] != "N/A" else ['NaN']
         #for i in criteria.keys[:-1]:
             #if criteria != "N/A"
                 #user_vector[i] = criteria[i]
