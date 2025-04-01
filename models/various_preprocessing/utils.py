@@ -22,7 +22,7 @@ class autoencoder(Model):
         return self.decoder(self.encoder(data))
 def main():
     data = pd.read_json('./combined_dataset.json').copy()['skills']
-    data = data.apply(lambda x: [] if x == ['NaN'] else x)
+    #data = data.apply(lambda x: [] if x == ['NaN'] else x)
     mlb = MultiLabelBinarizer()
     x  = mlb.fit_transform(data)
     joblib.dump(mlb, '../recommendatoin_systems/final_Models/mlb_skill.pkl')
@@ -36,10 +36,10 @@ def main():
 
     early_stopping = EarlyStopping(
         monitor='val_loss',
-        patience=3,
+        patience=2,
         restore_best_weights=True
     )
-    modelly.fit(x_1,x_1, epochs=100, batch_size=128, shuffle=True, validation_data=(y, y), callbacks = [early_stopping])
+    modelly.fit(x_1,x_1, epochs=150, batch_size=128, shuffle=True, validation_data=(y, y), callbacks = [early_stopping])
 
     modelly.encoder.save('../recommendatoin_systems/final_Models/encoder_skill.keras')
 
