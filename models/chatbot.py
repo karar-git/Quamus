@@ -1,4 +1,5 @@
 #do not forget to uncomment _generate...
+# in the recommend function of the recommender let it update the user personality vector
 import google.generativeai as genai
 from models.various_preprocessing.similarity_preprocessing import user_embedding
 import pandas as pd
@@ -56,7 +57,9 @@ class CourseRecommenderBot:
     def _generate_recommendations(self, criteria, user_input):
         #user_vector = pd.DataFrame(columns = combined_dataset.columns)
         #for i in criteria.keys[:-1]:
-            #user_vector[i] = criteria[i]
+            #if criteria != "N/A"
+                #user_vector[i] = criteria[i]
+        #user_vector['title'] = ""
         #user_vector['description'] = user_input
         #user_vector = user_embedding(user_vector)
         
