@@ -22,7 +22,7 @@ class autoencoder(Model):
         return self.decoder(self.encoder(data))
 def main():
     data = pd.read_json('./combined_dataset.json').copy()['skills']
-
+    data = data.apply(lambda x: [] if x == ['NaN'] else x)
     mlb = MultiLabelBinarizer()
     x  = mlb.fit_transform(data)
     joblib.dump(mlb, '../recommendatoin_systems/final_Models/mlb_skill.pkl')
