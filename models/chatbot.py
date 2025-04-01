@@ -1,7 +1,8 @@
 #do not forget to uncomment _generate...
+#in the genera, if the skill doesn't exist in the dataset what will happen? if the multilabel assign it to [0,0,0], then it should be good, or depends on how the normalization will behave (will it affect?)
 # in the recommend function of the recommender let it update the user personality vector
 import google.generativeai as genai
-from models.various_preprocessing.similarity_preprocessing import user_embedding
+from various_preprocessing.similarity_preprocessing import user_embedding
 import pandas as pd
 import re
 
@@ -56,6 +57,7 @@ class CourseRecommenderBot:
     
     def _generate_recommendations(self, criteria, user_input):
         #user_vector = pd.DataFrame(columns = combined_dataset.columns)
+        #criteria['skills'] = criteria['skills'].split(',') if criteria['skills'] != "N/A" else []
         #for i in criteria.keys[:-1]:
             #if criteria != "N/A"
                 #user_vector[i] = criteria[i]
@@ -107,15 +109,15 @@ class CourseRecommenderBot:
             self._append_to_history("assistant", formatted_response)
             return formatted_response
 
-## Usage Example
-#bot = CourseRecommenderBot()
-#
-## Conversation flow
-#print("Bot: Hi, Am Quamus! What kind of course are you looking for?")
-#while True:
-#    user_input = input("You: ")
-#    if "exit" in user_input.lower():
-#        break
-#    response = bot.handle_message(user_input)
-#    print(f"Bot: {response}")
-#    
+# Usage Example
+bot = CourseRecommenderBot()
+
+# Conversation flow
+print("Bot: Hi, Am Quamus! What kind of course are you looking for?")
+while True:
+    user_input = input("You: ")
+    if "exit" in user_input.lower():
+        break
+    response = bot.handle_message(user_input)
+    print(f"Bot: {response}")
+    

@@ -5,12 +5,12 @@ import pandas as pd
 import tensorflow as tf
 from torch import norm
 
-pd.set_option('display.max_columns', None)
-pd.set_option('display.max_colwidth', None)
-# Load the model
-my_vect_model = SentenceTransformer("paraphrase-MiniLM-L12-v2")
-# Load JSON data
-data = pd.read_json('./combined_dataset.json').copy()
+#pd.set_option('display.max_columns', None)
+#pd.set_option('display.max_colwidth', None)
+## Load the model
+#my_vect_model = SentenceTransformer("paraphrase-MiniLM-L12-v2")
+## Load JSON data
+#data = pd.read_json('./combined_dataset.json').copy()
 def pipe_for_sim(data):
     data['description'] = 'title: ' + data['course_name'] + " | description: "+ data['description']
     data.drop(columns=['url', 'course_name','organization', 'instructor', 'subject', 'has_subject', 'reviews'],inplace = True)
@@ -52,8 +52,10 @@ def pipe_for_sim(data):
         return np.concatenate([list_features, numeric_features])
     return data.apply(conca, axis =1)
 
-normalization_layer = tf.keras.layers.Normalization()
+#normalization_layer = tf.keras.layers.Normalization()
 def all_data(data):
+
+    data['skills'] = data['skills'].apply(lambda x: [] if x == ['NaN'] else x)
     dataa = pipe_for_sim(data)
     normalization_layer = tf.keras.layers.Normalization()
     normalization_layer.adapt(dataa)
