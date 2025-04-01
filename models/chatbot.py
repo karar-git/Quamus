@@ -55,12 +55,12 @@ class CourseRecommenderBot:
     
     def _generate_recommendations(self, criteria, user_input):
         #user_vector = pd.DataFrame(columns = combined_dataset.columns)
-        #for i in criteria.keys[1:]:
+        #for i in criteria.keys[:-1]:
             #user_vector[i] = criteria[i]
         #user_vector['description'] = user_input
         #user_vector = user_embedding(user_vector)
         
-        #recommendations = recommender.recommed(user_vector)
+        #recommendations = recommender.recommed(user_vector, criteria[-1])
         #formatted_response = self._format_with_llm(recommendations)
         #return formatted_response
 
@@ -97,7 +97,6 @@ class CourseRecommenderBot:
         else:
             # Extract structured data
             data = self._extract_structured_data(response)
-            print(data)
 
             formatted_response= self._generate_recommendations(data, user_input)
             #rec_text = "\n".join(recommendations)
@@ -105,15 +104,15 @@ class CourseRecommenderBot:
             self._append_to_history("assistant", formatted_response)
             return formatted_response
 
-# Usage Example
-bot = CourseRecommenderBot()
-
-# Conversation flow
-print("Bot: Hi, Am Quamus! What kind of course are you looking for?")
-while True:
-    user_input = input("You: ")
-    if "exit" in user_input.lower():
-        break
-    response = bot.handle_message(user_input)
-    print(f"Bot: {response}")
-    
+## Usage Example
+#bot = CourseRecommenderBot()
+#
+## Conversation flow
+#print("Bot: Hi, Am Quamus! What kind of course are you looking for?")
+#while True:
+#    user_input = input("You: ")
+#    if "exit" in user_input.lower():
+#        break
+#    response = bot.handle_message(user_input)
+#    print(f"Bot: {response}")
+#    
