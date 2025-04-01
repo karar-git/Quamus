@@ -1,4 +1,5 @@
 import tensorflow as tf
+import joblib
 from tensorflow import keras
 from tensorflow.keras import layers, losses, Sequential
 from tensorflow.keras.callbacks import EarlyStopping
@@ -24,6 +25,8 @@ def main():
 
     mlb = MultiLabelBinarizer()
     x  = mlb.fit_transform(data)
+    joblib.dump(mlb, '../recommendatoin_systems/final_Models/mlb_skill.pkl')
+
     len(x[1])
     x_1 , y = x[:int(len(x)*0.85)], x[int(len(x)*0.85):]
     del x

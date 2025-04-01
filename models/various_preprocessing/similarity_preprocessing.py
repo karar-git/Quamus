@@ -57,13 +57,12 @@ def all_data(data):
     dataa = pipe_for_sim(data)
     normalization_layer = tf.keras.layers.Normalization()
     normalization_layer.adapt(dataa)
-    tf.saved_model.save(normalization_layer, 'norm_layer')
+    tf.saved_model.save(normalization_layer, '../recommendatoin_systems/final_Models/norm_layer')
     encoded_data = normalization_layer(dataa)
 
     return encoded_data
-def onecourse_(data):
+def user_embedding(data):
     the_vector=pipe_for_sim(data)
     encoded_data = normalization_layer(the_vector)
-def save_norm_lay():
-    pass
+    return encoded_data
 #AWHAT = pipe_for_sim(data)
