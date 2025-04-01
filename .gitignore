@@ -5,6 +5,7 @@
 **/*.pdf
 **/*.json
 
+models/recommendation_systems/final_Models
 # Exception for a specific JSON file
 !models/combined_dataset.json
 
