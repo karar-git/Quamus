@@ -234,10 +234,6 @@ class Regist(QWidget):
         
         buttonM.clicked.connect(self.goToMain)
         
-    def goToMain(self):
-        self.parent().setCurrentIndex(2)#Switch to main chat window
-        
-        
 
 class MessageBubble(QFrame):
     def __init__(self, text, sender):
@@ -369,7 +365,7 @@ widget.addWidget(regist)
 widget.addWidget(main_chat)
 
 widget.setStyleSheet("background-color:#4F949D ")
-widget.setCurrentIndex(0)  # Start with Login screen
+widget.setCurrentIndex(0)
 widget.show()
 
 sys.exit(app.exec())
