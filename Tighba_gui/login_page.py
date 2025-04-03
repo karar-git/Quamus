@@ -248,7 +248,7 @@ class MessageBubble(QFrame):
             layout.addWidget(label)
             
         else:
-            #This gonna be for the bot and the messege will be aligned to the left
+            #this gonna be for the bot and the messege will be aligned to the left
             label.setStyleSheet("background-color: #4F949D ; padding: 10px; border-radius: 10px;color:white")
             layout.addWidget(label)
             layout.addStretch()
@@ -262,8 +262,8 @@ class ModernChatbot(QWidget):
         self.init_ui()
 
     def init_ui(self):
-        self.setWindowTitle("Modern Chatbot")
-        self.setGeometry(100, 100, 400, 500)
+       
+       
         self.setStyleSheet("background-color: #d4cebe")
 
         layout = QVBoxLayout()
@@ -280,7 +280,7 @@ class ModernChatbot(QWidget):
         input_layout = QHBoxLayout()
         self.input_field = QLineEdit()
         self.input_field.setStyleSheet("border: 2px solid #ccc; border-radius: 5px; padding: 5px;background-color:white")
-        self.input_field.returnPressed.connect(self.handle_message)  #Enter key handling
+        self.input_field.returnPressed.connect(self.handle_message)  # Handle Enter key press
         input_layout.addWidget(self.input_field)
         
         self.send_button = QPushButton("Send")
@@ -309,6 +309,8 @@ class ModernChatbot(QWidget):
             self.show_typing_animation()
 
 
+
+
     def show_typing_animation(self):
         self.typing_bubble = MessageBubble(". .", "Bot")
         self.chat_layout.insertWidget(self.chat_layout.count() - 1, self.typing_bubble)
@@ -333,7 +335,7 @@ class ModernChatbot(QWidget):
         bot_response = self.get_response(self.last_user_message)
         self.add_message(bot_response, "Bot")
 
-#Testing the gui with a simple bot(we gonna add your bot later instead)
+#Testing the gui with a simple bot
     def get_response(self, message):
         responses = {
             "hii": "Hi there!",
@@ -362,7 +364,7 @@ app.setStyleSheet("""
 """)
 
 widget = QtWidgets.QStackedWidget()
-widget.setWindowIcon(QIcon("/home/teeba/Documents/cppDS/photo_2025-03-27_15-33-18-removebg-preview.png"))
+widget.setWindowIcon(QIcon("python/photo_2025-03-27_15-33-18-removebg-preview.png"))
 widget.resize(350, 320)  
 widget.setWindowTitle(" Quamus ")
 
@@ -375,7 +377,7 @@ widget.addWidget(regist)
 widget.addWidget(main_chat)
 
 widget.setStyleSheet("background-color:#4F949D ")
-widget.setCurrentIndex(0)  # Start with login
+widget.setCurrentIndex(0)  # Start with Login screen
 widget.show()
 
 sys.exit(app.exec())
