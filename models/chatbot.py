@@ -26,6 +26,7 @@ class CourseRecommenderBot:
         Always respond in EXACTLY ONE of these formats:
         
         [When extracting features]
+        description: <the complete query of the user, copy paste his message related to the recommendation, not only the current one, but the old if related to the query of now>
         level: <Beginner|Intermediate|Advanced|mix|N/A>
         skills: <comma-separated list>
         type: <course|project|N/A>
@@ -47,7 +48,7 @@ class CourseRecommenderBot:
         })
     
     def _extract_structured_data(self, response):
-        pattern = r'(level|skills|type|duration|provider|number_of_recommendation):\s*(.*)'
+        pattern = r'(description|level|skills|type|duration|provider|number_of_recommendation):\s*(.*)'
         matches = re.findall(pattern, response)
         return {k: v.strip() for k, v in matches}
     
@@ -62,7 +63,6 @@ class CourseRecommenderBot:
             #if criteria != "N/A"
                 #user_vector[i] = criteria[i]
         #user_vector['title'] = ""
-        #user_vector['description'] = user_input
         #user_vector = user_embedding(user_vector)
         
         #recommendations = recommender.recommed(user_vector, criteria[-1])
@@ -102,6 +102,7 @@ class CourseRecommenderBot:
         else:
             # Extract structured data
             data = self._extract_structured_data(response)
+            print(data)
 
             formatted_response= self._generate_recommendations(data, user_input)
             #rec_text = "\n".join(recommendations)
@@ -120,4 +121,3 @@ while True:
         break
     response = bot.handle_message(user_input)
     print(f"Bot: {response}")
-    
