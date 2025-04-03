@@ -3,7 +3,6 @@ from sklearn.preprocessing import OneHotEncoder
 from sentence_transformers import SentenceTransformer
 import pandas as pd
 import tensorflow as tf
-from torch import norm
 
 #pd.set_option('display.max_columns', None)
 #pd.set_option('display.max_colwidth', None)
