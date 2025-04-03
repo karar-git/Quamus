@@ -2,7 +2,7 @@
 #in the genera, if the skill doesn't exist in the dataset what will happen? if the multilabel assign it to [0,0,0], then it should be good, or depends on how the normalization will behave (will it affect?)
 # in the recommend function of the recommender let it update the user personality vector
 import google.generativeai as genai
-from various_preprocessing.similarity_preprocessing import user_embedding
+#from various_preprocessing.similarity_preprocessing import user_embedding
 import pandas as pd
 import re
 
