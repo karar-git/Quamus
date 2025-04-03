@@ -16,7 +16,7 @@ class Login(QWidget):
         
         # Logo/Image
         label = QLabel(self)
-        pixmap = QPixmap("/home/teeba/Documents/cppDS/photo_2025-03-27_15-33-18-removebg-preview.png") 
+        pixmap = QPixmap("Tighba_gui/photo_2025-03-27_15-33-18-removebg-preview.png") 
       
         pixmap = pixmap.scaled(200, 200, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
         label.setPixmap(pixmap)
@@ -136,12 +136,10 @@ class Regist(QWidget):
         super().__init__()
         
        
-        self.setWindowIcon(QIcon("/home/teeba/Documents/cppDS/photo_2025-03-27_15-33-18-removebg-preview.png"))  
-        
         layoutR=QVBoxLayout()
         self.setLayout(layoutR)
         label = QLabel(self)
-        pixmap = QPixmap("/home/teeba/Documents/cppDS/photo_2025-03-27_15-33-18-removebg-preview.png") 
+        pixmap = QPixmap("Tighba_gui/photo_2025-03-27_15-33-18-removebg-preview.png") 
       
         pixmap = pixmap.scaled(200, 200, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
         label.setPixmap(pixmap)
@@ -233,6 +231,12 @@ class Regist(QWidget):
         self.setLayout(main_layout)
         
         main_layout.addWidget(container_widget, alignment=Qt.AlignmentFlag.AlignCenter)
+        
+        buttonM.clicked.connect(self.goToMain)
+        
+    def goToMain(self):
+        self.parent().setCurrentIndex(2)#Switch to main chat window
+        
         
 
 class MessageBubble(QFrame):
@@ -352,7 +356,7 @@ app.setStyleSheet("""
 """)
 
 widget = QtWidgets.QStackedWidget()
-widget.setWindowIcon(QIcon("python/photo_2025-03-27_15-33-18-removebg-preview.png"))
+widget.setWindowIcon(QIcon("Tighba_gui/photo_2025-03-27_15-33-18-removebg-preview.png"))
 widget.resize(350, 320)  
 widget.setWindowTitle(" Quamus ")
 
