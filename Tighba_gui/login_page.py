@@ -234,6 +234,10 @@ class Regist(QWidget):
         
         buttonM.clicked.connect(self.goToMain)
         
+    def goToMain(self):
+        self.parent().setCurrentIndex(2)#Switch to main chat window
+        
+        
 
 class MessageBubble(QFrame):
     def __init__(self, text, sender):
