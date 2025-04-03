@@ -95,6 +95,7 @@
 
 import scrapy
 import json
+import os
 from tqdm import tqdm  # Import tqdm for the progress bar
 import time  # For implementing delays
 
@@ -139,8 +140,8 @@ class UdemySpider(scrapy.Spider):
             yield scrapy.Request(details_url, callback=self.parse_course_details, meta={'course_id': course_id})
 
             # Fetch course reviews
-            reviews_url = f"https://www.udemy.com/api-2.0/courses/{course_id}/reviews/?courseId={course_id}&page=1&is_text_review=1&ordering=course_review_score__rank,-created&fields[course_review]=@default,response,content_html,created_formatted_with_time_since&fields[user]=@min,image_50x50,initials,public_display_name,tracking_id&fields[course_review_response]=@min,user,content_html,created_formatted_with_time_since"
-            yield scrapy.Request(reviews_url, callback=self.parse_reviews, meta={'course_id': course_id, 'reviews_fetched': 0})
+            #reviews_url = f"https://www.udemy.com/api-2.0/courses/{course_id}/reviews/?courseId={course_id}&page=1&is_text_review=1&ordering=course_review_score__rank,-created&fields[course_review]=@default,response,content_html,created_formatted_with_time_since&fields[user]=@min,image_50x50,initials,public_display_name,tracking_id&fields[course_review_response]=@min,user,content_html,created_formatted_with_time_since"
+            #yield scrapy.Request(reviews_url, callback=self.parse_reviews, meta={'course_id': course_id, 'reviews_fetched': 0})
 
         # Handle pagination for course IDs
         total_pages = data.get('pagination', {}).get('total_page', 1)
@@ -149,48 +150,67 @@ class UdemySpider(scrapy.Spider):
             next_url = f"https://www.udemy.com/api-2.0/discovery-units/all_courses/?p={next_page}&page_size=60&subcategory=&instructional_level=&lang=&price=&duration=&closed_captions=&subs_filter_type=&label_id={label_id}&source_page=topic_page&locale=en_US&currency=usd&navigation_locale=en&skip_price=true&sos=pl&fl=lbl"
             yield scrapy.Request(next_url, callback=self.parse_course_ids, meta={'label_id': label_id, 'page': next_page})
 
+
+
     def parse_course_details(self, response):
         # Parse course details from API response
         data = response.json()
         course_id = response.meta['course_id']
 
+        # Check for curriculum content; if not found, log the course id and do not yield data
+        curriculum_content = data.get('curriculum_context', {}).get('data', {})
+        if not curriculum_content:
+            self.urls_without_circc_1(response.url)
+            return
+
         yield {
             'course_id': course_id,
+            'course_url': response.url,
             'add_to_cart': data.get('add_to_cart', {}).get('buyables', []),
-            'curriculum_content': data.get('curriculum_context', {}).get('data', {}),
+            'curriculum_content': curriculum_content,
             'incentives': data.get('incentives', {}),
         }
 
-    def parse_reviews(self, response):
-        if response.status == 429:
-            yield from self.handle_too_many_requests(response)
-            return
 
-        # Parse reviews for a course
-        data = response.json()
-        course_id = response.meta['course_id']
-        reviews_fetched = response.meta['reviews_fetched']
+    def log_failed_request(self, url):
+        file_name = "didnt_get_parsed.json"
+        # Initialize an empty list or load existing data
+        if os.path.exists(file_name):
+            with open(file_name, "r") as f:
+                try:
+                    failed_urls = json.load(f)
+                except json.JSONDecodeError:
+                    failed_urls = []
+        else:
+            failed_urls = []
+        
+        # Append the new URL if it is not already in the list
+        if url not in failed_urls:
+            failed_urls.append(url)
+        
+        # Write the updated list back to the file
+        with open(file_name, "w") as f:
+            json.dump(failed_urls, f, indent=4)
 
-        # Extract reviews from the current page
-        reviews = data.get('results', [])
-        for review in reviews:
-            yield {
-                'course_id': course_id,
-                'review': review
-            }
-
-        # Stop fetching after collecting 30 reviews
-        reviews_fetched += len(reviews)
-        if reviews_fetched >= 30:
-            return
-
-        # Fetch the next page of reviews if available
-        next_url = data.get('next')
-        if next_url:
-            yield scrapy.Request(next_url, callback=self.parse_reviews, meta={
-                'course_id': course_id,
-                'reviews_fetched': reviews_fetched
-            })
+    def urls_without_circc_1(self, url):
+        file_name = "urls_without_circc.json"
+        # Initialize an empty list or load existing data
+        if os.path.exists(file_name):
+            with open(file_name, "r") as f:
+                try:
+                    failed_urls = json.load(f)
+                except json.JSONDecodeError:
+                    failed_urls = []
+        else:
+            failed_urls = []
+        
+        # Append the new URL if it is not already in the list
+        if url not in failed_urls:
+            failed_urls.append(url)
+        
+        # Write the updated list back to the file
+        with open(file_name, "w") as f:
+            json.dump(failed_urls, f, indent=4)
 
     def handle_too_many_requests(self, response):
         """
@@ -199,6 +219,7 @@ class UdemySpider(scrapy.Spider):
         retry_count = response.meta.get('retry_count', 0)
         if retry_count >= 3:  # Stop retrying after 3 attempts
             self.logger.error(f"Gave up on {response.url} after too many retries.")
+            self.log_failed_request(response.url)
             return
 
         # Wait for 10 seconds before retrying
@@ -213,4 +234,34 @@ class UdemySpider(scrapy.Spider):
             meta={**response.meta, 'retry_count': retry_count},  # Pass updated meta
             dont_filter=True  # Ensure request is not filtered
         )
+    #def parse_reviews(self, response):
+    #    if response.status == 429:
+    #        yield from self.handle_too_many_requests(response)
+    #        return
+
+    #    # Parse reviews for a course
+    #    data = response.json()
+    #    course_id = response.meta['course_id']
+    #    reviews_fetched = response.meta['reviews_fetched']
+
+    #    # Extract reviews from the current page
+    #    reviews = data.get('results', [])
+    #    for review in reviews:
+    #        yield {
+    #            'course_id': course_id,
+    #            'review': review
+    #        }
+
+    #    # Stop fetching after collecting 30 reviews
+    #    reviews_fetched += len(reviews)
+    #    if reviews_fetched >= 30:
+    #        return
+
+    #    # Fetch the next page of reviews if available
+    #    next_url = data.get('next')
+    #    if next_url:
+    #        yield scrapy.Request(next_url, callback=self.parse_reviews, meta={
+    #            'course_id': course_id,
+    #            'reviews_fetched': reviews_fetched
+    #        })
 
