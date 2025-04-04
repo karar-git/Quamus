@@ -124,9 +124,9 @@ class UdemySpider(scrapy.Spider):
             )
 
     def parse_course_ids(self, response):
-        if response.status == 429:
-            yield from self.handle_too_many_requests(response)
-            return
+        #if response.status == 429:
+        #    yield from self.handle_too_many_requests(response)
+        #    return
 
         # Parse course IDs from API response
         data = response.json()
@@ -136,7 +136,7 @@ class UdemySpider(scrapy.Spider):
         for course in data.get('unit', {}).get('items', []):
             course_id = course.get('id')
             # Fetch course details
-            details_url = f"https://www.udemy.com/api-2.0/course-landing-components/{course_id}/me/?components=add_to_cart,curriculum_context,incentives"
+            details_url = f"https://www.udemy.com/api-2.0/course-landing-components/{course_id}/me/?components=add_to_cart,curriculum_context,incentives,slider_menu"
             yield scrapy.Request(details_url, callback=self.parse_course_details, meta={'course_id': course_id})
 
             # Fetch course reviews
@@ -152,25 +152,137 @@ class UdemySpider(scrapy.Spider):
 
 
 
+    #def parse_course_details(self, response):
+    #    # Parse course details from API response
+    #    data = response.json()
+    #    course_id = response.meta['course_id']
+
+    #    # Check for curriculum content; if not found, log the course id and do not yield data
+    #    curriculum_content = data.get('curriculum_context', {}).get('data', {})
+    #    if not curriculum_content:
+    #        self.urls_without_circc_1(response.url)
+    #        return
+
+    #    yield {
+    #        'course_id': course_id,
+    #        'course_url': response.url,
+    #        'add_to_cart': data.get('add_to_cart', {}).get('buyables', []),
+    #        'curriculum_content': curriculum_content,
+    #        'incentives': data.get('incentives', {}),
+    #        'slider_menu': data.get('slider_menu', {})
+    #    }
+
+    #def parse_desc(self, url):
+
+
     def parse_course_details(self, response):
-        # Parse course details from API response
         data = response.json()
         course_id = response.meta['course_id']
 
-        # Check for curriculum content; if not found, log the course id and do not yield data
         curriculum_content = data.get('curriculum_context', {}).get('data', {})
         if not curriculum_content:
             self.urls_without_circc_1(response.url)
             return
 
-        yield {
+        course_data = {
             'course_id': course_id,
-            'course_url': response.url,
+            'course_url': response.url,  # This is the main course URL
             'add_to_cart': data.get('add_to_cart', {}).get('buyables', []),
             'curriculum_content': curriculum_content,
             'incentives': data.get('incentives', {}),
+            'slider_menu': data.get('slider_menu', {})
         }
 
+        yield scrapy.Request(
+            url=f'https://www.udemy.com/api-2.0/courses/{course_id}?fields[course]=description',
+            callback=self.parse_description,
+            meta={'course_data': course_data, 'retry_count': 0}  # Initialize retry count
+        )
+
+    def parse_description(self, response):
+        if response.status == 429:
+            # Pass course_data to the retry handler
+            yield from self.handle_too_many_requests(response.meta['course_data'], response)
+            return
+        data = response.json()
+        course_data = response.meta['course_data']
+        course_data['description'] = data.get('description', '')
+        yield course_data
+
+    def handle_too_many_requests(self, course_data, response):
+        retry_count = response.meta.get('retry_count', 0)
+        if retry_count >= 3:
+            # Log the MAIN course URL (not the API endpoint)
+            self.logger.error(f"Failed to fetch description for: {course_data['course_url']}")
+            self.log_failed_request(course_data['course_id'])  # Log to file
+            return
+
+        time.sleep(10)
+        retry_count += 1
+        yield scrapy.Request(
+            response.url,
+            callback=self.parse_description,
+            meta={**response.meta, 'retry_count': retry_count},
+            dont_filter=True
+        )
+
+    #def parse_course_details(self, response):
+    #    data = response.json()
+    #    course_id = response.meta['course_id']
+
+    #    curriculum_content = data.get('curriculum_context', {}).get('data', {})
+    #    if not curriculum_content:
+    #        self.urls_without_circc_1(response.url)
+    #        return
+
+    #    course_data = {
+    #        'course_id': course_id,
+    #        'course_url': response.url,
+    #        'add_to_cart': data.get('add_to_cart', {}).get('buyables', []),
+    #        'curriculum_content': curriculum_content,
+    #        'incentives': data.get('incentives', {}),
+    #        'slider_menu': data.get('slider_menu', {})
+    #    }
+
+    #    # Now yield a new request to get the description
+    #    yield scrapy.Request(
+    #        url=f'https://www.udemy.com/api-2.0/courses/{course_id}?fields[course]=description',
+    #        callback=self.parse_description,
+    #        meta={'course_data': course_data, 'response': response}
+    #    )
+
+    #def parse_description(self, response):
+    #    if response.status == 429:
+    #        yield from self.handle_too_many_requests(response.meta['response'])
+    #        return
+    #    data = response.json()
+    #    description = data.get('description', '')
+    #    course_data = response.meta['course_data']
+    #    course_data['description'] = description
+    #    yield course_data
+
+    #def handle_too_many_requests(self, response):
+    #    """
+    #    Handle 429 Too Many Requests by waiting and retrying.
+    #    """
+    #    retry_count = response.meta.get('retry_count', 0)
+    #    if retry_count >= 3:  # Stop retrying after 3 attempts
+    #        self.logger.error(f"Gave up on {response.url} after too many retries.")
+    #        self.log_failed_request(response.url)
+    #        return
+
+    #    # Wait for 10 seconds before retrying
+    #    #self.logger.warning(f"Too many requests (429). Retrying {response.url} after waiting 10 seconds...")
+    #    time.sleep(10)
+
+    #    # Retry the request with an incremented retry count
+    #    retry_count += 1
+    #    yield scrapy.Request(
+    #        response.url,
+    #        callback=response.request.callback,
+    #        meta={**response.meta, 'retry_count': retry_count},  # Pass updated meta
+    #        dont_filter=True  # Ensure request is not filtered
+    #    )
 
     def log_failed_request(self, url):
         file_name = "didnt_get_parsed.json"
@@ -212,28 +324,6 @@ class UdemySpider(scrapy.Spider):
         with open(file_name, "w") as f:
             json.dump(failed_urls, f, indent=4)
 
-    def handle_too_many_requests(self, response):
-        """
-        Handle 429 Too Many Requests by waiting and retrying.
-        """
-        retry_count = response.meta.get('retry_count', 0)
-        if retry_count >= 3:  # Stop retrying after 3 attempts
-            self.logger.error(f"Gave up on {response.url} after too many retries.")
-            self.log_failed_request(response.url)
-            return
-
-        # Wait for 10 seconds before retrying
-        self.logger.warning(f"Too many requests (429). Retrying {response.url} after waiting 10 seconds...")
-        time.sleep(10)
-
-        # Retry the request with an incremented retry count
-        retry_count += 1
-        yield scrapy.Request(
-            response.url,
-            callback=response.request.callback,
-            meta={**response.meta, 'retry_count': retry_count},  # Pass updated meta
-            dont_filter=True  # Ensure request is not filtered
-        )
     #def parse_reviews(self, response):
     #    if response.status == 429:
     #        yield from self.handle_too_many_requests(response)

@@ -164,3 +164,44 @@ else:
                      f"Missing in Coursera: {missing_in_coursera}\n"
                      f"Missing in edX: {missing_in_edx}")
 
+#|%%--%%| <Zk5xEFN0YK|lE0uO6ro20>
+
+import pandas as pd
+
+data= pd.read_json('../udemy/courses/courses_scrape/courses_scrape/spiders/output.json')
+karar = pd.DataFrame()
+def title(dataa):
+    return dataa['add_to_cart'][0]['title']
+karar['title']=data.apply(title, axis = 1)
+data_cleaned = data.drop_duplicates(subset='title', keep='first')
+len(data_cleaned)
+def fun(data):
+    data['title'] = data['add_to_cart'].apply(lambda x: x.get('title') if isinstance(x, dict) else None)
+data = data.apply(fun)
+
+
+
+
+import pandas as pd
+
+# Load JSON data
+data = pd.read_json('../udemy/courses/courses_scrape/courses_scrape/spiders/output.json')
+
+# Function to extract title and print if list is empty
+def title(dataa):
+    if isinstance(dataa.get('add_to_cart'), list):
+        if not dataa['add_to_cart']:  # Check if the list is empty
+            print("Empty list found!")
+            return None
+        if dataa['add_to_cart'][0].get('title'):
+            return dataa['add_to_cart'][0].get('title')
+        else:
+            print ("non value")
+    return None  # Return None if 'add_to_cart' is missing or not a list
+
+# Apply function to extract titles
+karar = pd.DataFrame({'title': data.apply(title, axis=1)})
+data.iloc[2]['curriculum_content'].keys()
+data.iloc[2]['curriculum_content']['url']
+# Display result
+print(karar.head())
