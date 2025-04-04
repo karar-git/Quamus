@@ -5,3 +5,8 @@ mlb_skill for mlb of the skills
 combined_dataset for the combined_dataset or at least its columns, if so edit the chatbot file generate_recom
 
 my_vect_model for paraphrase-MiniLM-L12-v2
+
+
+
+
+just a note: in the scraping udemy topics u can use : https://www.udemy.com/api-2.0/contexts/me/?header=true&footer=true for easier stea... I meant borrow 
