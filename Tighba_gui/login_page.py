@@ -256,11 +256,19 @@ class Regist(QWidget):
         email = self.email_input.text()
         username = self.user_input.text()
         password = self.pass_input.text()
+        
+        if not email or not username or not password:
+            QMessageBox.warning(self,"Error","All fields are required,please fill them")
+            return
+        if "@" not in email or ".com" not in email:
+            QMessageBox.warning(self,"Error","Please enter a valid email address")
+            return
+        
 
         # Save the user data in the file
         if save_user(email, username, password):
             QMessageBox.information(self, "Success", "Account created successfully!")
-          
+
             self.parent().setCurrentIndex(2)
         else:
             QMessageBox.warning(self, "Error", "Username already exists.")
