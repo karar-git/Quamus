@@ -8,14 +8,8 @@ from PyQt6.QtCore import Qt,QTimer
 from PyQt6.QtGui import QIcon, QPixmap
 
 import json,os
-from PyQt6.QtWidgets import (
-    QApplication, QWidget, QPushButton, QLabel,
-    QLineEdit, QGridLayout, QHBoxLayout, QVBoxLayout, QTextEdit, QFrame, QScrollArea, QMessageBox
-)
-from PyQt6 import QtWidgets
-import sys
-from PyQt6.QtCore import Qt, QTimer
-from PyQt6.QtGui import QIcon, QPixmap
+
+
 
 import json, os
 
@@ -62,7 +56,7 @@ class Login(QWidget):
 
         # Logo/Image
         label = QLabel(self)
-        pixmap = QPixmap("../Tighba_gui/photo_2025-03-27_15-33-18-removebg-preview.png")
+        pixmap = QPixmap("Learning_Assistant/Tighba_gui/photo_2025-03-27_15-33-18-removebg-preview.png")
 
         pixmap = pixmap.scaled(200, 200, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
         label.setPixmap(pixmap)
@@ -185,7 +179,7 @@ class Regist(QWidget):
         layoutR = QVBoxLayout()
         self.setLayout(layoutR)
         label = QLabel(self)
-        pixmap = QPixmap("../Tighba_gui/photo_2025-03-27_15-33-18-removebg-preview.png")
+        pixmap = QPixmap("Learning_Assistant/Tighba_gui/photo_2025-03-27_15-33-18-removebg-preview.png")
 
         pixmap = pixmap.scaled(200, 200, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
         label.setPixmap(pixmap)
@@ -266,6 +260,7 @@ class Regist(QWidget):
         # Save the user data in the file
         if save_user(email, username, password):
             QMessageBox.information(self, "Success", "Account created successfully!")
+          
             self.parent().setCurrentIndex(2)
         else:
             QMessageBox.warning(self, "Error", "Username already exists.")
@@ -389,7 +384,7 @@ app.setStyleSheet("""
 """)
 
 widget = QtWidgets.QStackedWidget()
-widget.setWindowIcon(QIcon("../Tighba_gui/photo_2025-03-27_15-33-18-removebg-preview.png"))
+widget.setWindowIcon(QIcon("Learning_Assistant/Tighba_gui/photo_2025-03-27_15-33-18-removebg-preview.png"))
 widget.resize(350, 320)  
 widget.setWindowTitle(" Quamus ")
 
