@@ -13,22 +13,21 @@ import json,os
 
 import json, os
 
-# File for storing user data
+
 users_file = "users.json"
 
-# Function to load users from file
 def load_users():
     if not os.path.exists(users_file):
         return {}
     with open(users_file, 'r') as f:
         return json.load(f)
 
-# Function to save users to file
+
 def save_users(users):
     with open(users_file, 'w') as f:
         json.dump(users, f, indent=4)
 
-# Function to save a new user to the file
+
 def save_user(email, username, password):
     users = load_users()
     if username in users:
@@ -37,7 +36,7 @@ def save_user(email, username, password):
     save_users(users)
     return True
 
-# Function to authenticate user
+
 def authenticate_user(username, password):
     if not os.path.exists(users_file):
         return "no_file"  # No user file found
@@ -46,7 +45,7 @@ def authenticate_user(username, password):
         return True  # Authentication success
     return False  # Authentication failure
 
-# Login Window Class
+
 class Login(QWidget):
     def __init__(self):
         super().__init__()
@@ -171,7 +170,6 @@ class Login(QWidget):
         else:
             QMessageBox.warning(self, "Error", "Invalid username or password.")
 
-# Registration Window Class
 class Regist(QWidget):
     def __init__(self):
         super().__init__()
@@ -256,16 +254,40 @@ class Regist(QWidget):
         email = self.email_input.text()
         username = self.user_input.text()
         password = self.pass_input.text()
+        
+        if not email or not username or not password:
+            QMessageBox.warning(self,"Error","All fields are required,please fill them")
+            return
+        if "@" not in email or ".com" not in email:
+            QMessageBox.warning(self,"Error","Please enter a valid email address")
+            return
+        
 
         # Save the user data in the file
         if save_user(email, username, password):
             QMessageBox.information(self, "Success", "Account created successfully!")
-          
+
             self.parent().setCurrentIndex(2)
         else:
             QMessageBox.warning(self, "Error", "Username already exists.")
 
         
+#Here is the main window where  recommendations settle
+#class main(QWidget):
+#    def __init__(self):
+#        super().__init__()
+#        layout=QVBoxLayout()
+#        self.setLayout(layout)
+#        title= QLabel  ("main window\n\n\nCourses you might be inserested int:")
+#        layout.addWidget(title)
+#
+
+
+
+
+
+
+
 
 class MessageBubble(QFrame):
     def __init__(self, text, sender):
@@ -288,6 +310,7 @@ class MessageBubble(QFrame):
         self.setLayout(layout)
         
         
+             
 class ModernChatbot(QWidget):
     def __init__(self):
         super().__init__()
@@ -376,6 +399,9 @@ class ModernChatbot(QWidget):
             "have a nice day": "thankss,you too"
         }
         return responses.get(message.lower(), "Hey, say something understandable!.")
+
+
+
 
 app = QApplication(sys.argv)
 app.setStyleSheet("""
