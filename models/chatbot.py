@@ -104,6 +104,8 @@ class CourseRecommenderBot:
             data = self._extract_structured_data(response)
             print(data)
 
+
+
             formatted_response= self._generate_recommendations(data, user_input)
             #rec_text = "\n".join(recommendations)
             #formatted_response = f"RECOMMEND: Here are some courses you might like:\n{rec_text}"
@@ -113,11 +115,11 @@ class CourseRecommenderBot:
 # Usage Example
 bot = CourseRecommenderBot()
 
-# Conversation flow
-print("Bot: Hi, Am Quamus! What kind of course are you looking for?")
-while True:
-    user_input = input("You: ")
-    if "exit" in user_input.lower():
-        break
-    response = bot.handle_message(user_input)
-    print(f"Bot: {response}")
+#I deleted cat flow ,,,  ,,
+
+
+
+
+
+
+
