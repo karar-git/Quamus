@@ -1,9 +1,13 @@
+import joblib
+from tensorflow import convert_to_tensor
 import numpy as np
+from utils import Autoencoder
 from sklearn.preprocessing import OneHotEncoder
 from sentence_transformers import SentenceTransformer
 import pandas as pd
 import tensorflow as tf
 
+tf.experimental.numpy.experimental_enable_numpy_behavior()
 #pd.set_option('display.max_columns', None)
 #pd.set_option('display.max_colwidth', None)
 ## Load the model
@@ -40,7 +44,9 @@ def pipe_for_sim(data):
     data['rating'] = data['rating'].apply(change)
     data['description'] = my_vect_model.encode(data['description']).tolist()
     data['skills'] = mlb_skill.transform(data['skills'])
-    data['skills'] = encoder_skill(data['skills'])
+    skills_tensor = convert_to_tensor(data['skills'].tolist(), dtype=tf.float32)
+    data['skills'] = encoder_skill.encoder(skills_tensor).numpy()
+    data['skills'] = encoder_skill.encoder(data['skills'])
     data['skills'] = np.mean(data['skills'], axis = 1)
     lists= ['description', 'level', 'provider', 'type', 'skills']
     def conca(row):
@@ -67,3 +73,22 @@ def user_embedding(data):
     encoded_data = normalization_layer(the_vector)
     return encoded_data
 #AWHAT = pipe_for_sim(data)
+def main():
+
+    my_vect_model = SentenceTransformer("paraphrase-MiniLM-L12-v2")
+    dataa = pd.read_json('./combined_dataset.json')
+    mlb_skill = joblib.load('../recommendatoin_systems/final_Models/mlb_skill.pkl')
+    input_shape = 11898
+    encoder_skill = Autoencoder(input_shape, latent_dim=24)
+    encoder_skill.build(input_shape)
+    encoder_skill.load_weights('../recommendatoin_systems/final_Models/autoencoderweights.weights.h5')
+    
+    # Check the encoder_skill's architecture
+    encoder_skill.summary()
+    encoded_final_ = all_data(dataa)
+    np.save("../data/encoded_data.npy", encoded_final_)
+    print("Embeddings have been successfully saved!")
+
+
+if __name__ == '__main__':
+    main()
