@@ -12,6 +12,8 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'models'))
 from chatbot import bot
 
 
+
+
 users_file = "users.json"
 
 def load_users():
