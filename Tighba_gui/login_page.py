@@ -346,6 +346,7 @@ class ModernChatbot(QWidget):
 
 
 
+
     def add_message(self, text, sender):
         message_bubble = MessageBubble(text, sender)
         self.chat_layout.insertWidget(self.chat_layout.count() - 1, message_bubble)
@@ -419,6 +420,8 @@ widget.setCurrentIndex(0)
 widget.show()
 
 sys.exit(app.exec())
+
+
 
 
 
