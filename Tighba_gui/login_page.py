@@ -373,11 +373,7 @@ class ModernChatbot(QWidget):
             self.show_typing_animation()
             self.show_animation()
             
-      
-
-
-
-
+    
     def show_typing_animation(self):
         self.typing_bubble = MessageBubble(". .", "Bot")
         self.chat_layout.insertWidget(self.chat_layout.count() - 1, self.typing_bubble)
@@ -403,6 +399,7 @@ class ModernChatbot(QWidget):
         self.typing_icon.setVisible(False)
       
 
+    
     
     
 
