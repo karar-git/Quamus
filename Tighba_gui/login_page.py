@@ -3,15 +3,13 @@ from PyQt6.QtWidgets import (
     QLineEdit, QGridLayout, QHBoxLayout, QVBoxLayout,QTextEdit, QFrame, QScrollArea,QMessageBox
 )
 from PyQt6 import QtWidgets
-import sys
+import sys,json,os
 from PyQt6.QtCore import Qt,QTimer
 from PyQt6.QtGui import QIcon, QPixmap
 
-import json,os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'models'))
 
-
-
-import json, os
+from chatbot import bot
 
 
 users_file = "users.json"
@@ -392,13 +390,8 @@ class ModernChatbot(QWidget):
 
 #Testing the gui with a simple bot
     def get_response(self, message):
-        responses = {
-            "hii": "Hi there!",
-            "how are you": "I'm just a bot,i dont have feelings to response to such questions!",
-            "bye": "Goodbye! Have a nice day!",
-            "have a nice day": "thankss,you too"
-        }
-        return responses.get(message.lower(), "Hey, say something understandable!.")
+        
+        return bot.handle_message(message)
 
 
 
