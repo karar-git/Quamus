@@ -9,7 +9,11 @@ models/recommendation_systems/final_Models
 # Exception for a specific JSON file
 !models/combined_dataset.json
 
+<<<<<<< HEAD
 #models/
+=======
+models/
+>>>>>>> c5b443af86e2eddcb74984c87b9e4213ec05fdca
 !models/chatbot.py
 
 # Ignore directories and specific files
