@@ -46,7 +46,7 @@ def main():
         patience=2,
         restore_best_weights=True
     )
-    modelly.fit(x_1,x_1, epochs=5, batch_size=128, shuffle=True, validation_data=(y, y), callbacks = [early_stopping])
+    modelly.fit(x_1,x_1, epochs=150, batch_size=128, shuffle=True, validation_data=(y, y), callbacks = [early_stopping])
 
     #modelly.encoder.save('../recommendatoin_systems/final_Models/encoder_skill.keras')
     dummy_input = tf.keras.Input(shape=(x_1.shape[1],))

@@ -1,5 +1,5 @@
 import joblib
-from tensorflow import convert_to_tensor
+from tensorflow import convert_to_tensor, data
 import numpy as np
 from utils import Autoencoder
 from sklearn.preprocessing import OneHotEncoder
@@ -14,40 +14,45 @@ tf.experimental.numpy.experimental_enable_numpy_behavior()
 #my_vect_model = SentenceTransformer("paraphrase-MiniLM-L12-v2")
 ## Load JSON data
 #data = pd.read_json('./combined_dataset.json').copy()
-def pipe_for_sim(data):
-    data['description'] = 'title: ' + data['course_name'] + " | description: "+ data['description']
-    data.drop(columns=['url', 'course_name','organization', 'instructor', 'subject', 'has_subject', 'reviews'],inplace = True)
-    data.fillna(0, inplace = True)
-    for col in data.columns:
-        if data[col].dtype == 'object':  # Check if it's stored as a string
+def pipe_for_sim(dataaaa):
+    #dataaaa['description'] = 'title: ' + dataaaa['course_name'] + " | description: "+ dataaaa['description']
+    dataaaa.drop(columns=['url', 'course_name','organization', 'instructor', 'subject', 'has_subject', 'reviews'],inplace = True)
+    dataaaa.fillna(0, inplace = True)
+    for col in dataaaa.columns:
+        if dataaaa[col].dtype == 'object':  # Check if it's stored as a string
             try:
-                data[col] = pd.to_numeric(data[col])  # Convert if possible
+                dataaaa[col] = pd.to_numeric(dataaaa[col])  # Convert if possible
             except (ValueError, TypeError):
                 pass  # Skip
     #handle reviews? do it later :) u could encode them, take the average or whatever
-    def level_handler(dataaaa):
-        if isinstance(dataaaa, list):
-            if len(dataaaa) ==1:
-                return dataaaa[0]
+    def level_handler(dataaaaaaa):
+        if isinstance(dataaaaaaa, list):
+            if len(dataaaaaaa) ==1:
+                return dataaaaaaa[0]
             else: return "mixed"
-        else: return dataaaa 
-    data['level'] = data['level'].apply(level_handler)
+        else: return dataaaaaaa 
+    dataaaa['level'] = dataaaa['level'].apply(level_handler)
     for i in ['level', 'provider', 'type']:
         encoder = OneHotEncoder(sparse_output=False)
-        encoded_= encoder.fit_transform(data[[i]])  
+        encoded_= encoder.fit_transform(dataaaa[[i]])  
 
-        data[i] = encoded_.tolist()  
+        dataaaa[i] = encoded_.tolist()  
     def change(rating):
         if rating == 'No rating':
             return 0
         return rating
-    data['rating'] = data['rating'].apply(change)
-    data['description'] = my_vect_model.encode(data['description']).tolist()
-    data['skills'] = mlb_skill.transform(data['skills'])
-    skills_tensor = convert_to_tensor(data['skills'].tolist(), dtype=tf.float32)
-    data['skills'] = encoder_skill.encoder(skills_tensor).numpy()
-    data['skills'] = encoder_skill.encoder(data['skills'])
-    data['skills'] = np.mean(data['skills'], axis = 1)
+    dataaaa['rating'] = dataaaa['rating'].apply(change)
+    dataaaa['description'] = my_vect_model.encode(dataaaa['description']).tolist()
+
+
+    skills_array = mlb_skill.transform(dataaaa['skills'])  # Expecting shape: (13793, 11898)
+    skills_tensor = tf.convert_to_tensor(skills_array, dtype=tf.float32)
+    skills_tensor.shape
+    #dataaaa['skills'] = encoder_skill.encoder(skills_tensor).numpy()
+    dataaaa['skills'] = list(encoder_skill.encoder(skills_tensor).numpy())
+    #encoded_skills = encoder_skill.encoder(skills_tensor).numpy()
+    #dataaaa['skills'] = np.mean(encoded_skills, axis=0)
+    
     lists= ['description', 'level', 'provider', 'type', 'skills']
     def conca(row):
         # Convert each list-like feature to a NumPy array
@@ -55,12 +60,13 @@ def pipe_for_sim(data):
         # Drop the specified list columns using 'labels' instead of 'columns'
         numeric_features = row.drop(labels=lists).apply(lambda x: float(str(x).replace(',', ''))).values
         return np.concatenate([list_features, numeric_features])
-    return data.apply(conca, axis =1)
+    return dataaaa.apply(conca, axis =1)
 
 #normalization_layer = tf.keras.layers.Normalization()
 def all_data(data):
 
     #data['skills'] = data['skills'].apply(lambda x: [] if x == ['NaN'] else x)
+    #dataa = pipe_for_sim(data)
     dataa = pipe_for_sim(data)
     normalization_layer = tf.keras.layers.Normalization()
     normalization_layer.adapt(dataa)
