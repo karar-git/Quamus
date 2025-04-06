@@ -104,6 +104,8 @@ class CourseRecommenderBot:
             data = self._extract_structured_data(response)
             print(data)
 
+
+
             formatted_response= self._generate_recommendations(data, user_input)
             #rec_text = "\n".join(recommendations)
             #formatted_response = f"RECOMMEND: Here are some courses you might like:\n{rec_text}"
@@ -119,5 +121,3 @@ bot = CourseRecommenderBot()
 
 
 #testing comment
-
-
