@@ -5,11 +5,13 @@ from PyQt6.QtWidgets import (
 from PyQt6 import QtWidgets
 import sys,json,os
 from PyQt6.QtCore import Qt,QTimer
-from PyQt6.QtGui import QIcon, QPixmap
+from PyQt6.QtGui import QIcon, QPixmap,QMovie
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'models'))
 
 from chatbot import bot
+
+
 
 
 users_file = "users.json"
@@ -271,15 +273,15 @@ class Regist(QWidget):
 
         
 #Here is the main window where  recommendations settle
-#class main(QWidget):
-#    def __init__(self):
-#        super().__init__()
-#        layout=QVBoxLayout()
-#        self.setLayout(layout)
-#        title= QLabel  ("main window\n\n\nCourses you might be inserested int:")
-#        layout.addWidget(title)
-#
+class main(QWidget):
+    def __init__(self):
+        super().__init__()
+        layout=QVBoxLayout()
+        self.setLayout(layout)
+        title= QLabel  ("main window\n\n\nCourses you might be inserested int:")
+        layout.addWidget(title)
 
+        
 
 
 
@@ -330,6 +332,15 @@ class ModernChatbot(QWidget):
         self.scroll_area.setWidget(self.chat_container)
         layout.addWidget(self.scroll_area)
         
+        # My animation gif
+        self.typing_icon = QLabel()
+       
+        self.typing_icon.setStyleSheet("background: transparent;") 
+        self.typing_icon.setFixedSize(50, 50)
+        self.typing_icon.setVisible(False)  # hidden by default
+        self.chat_layout.addWidget(self.typing_icon, alignment=Qt.AlignmentFlag.AlignLeft)
+
+        
         input_layout = QHBoxLayout()
         self.input_field = QLineEdit()
         self.input_field.setStyleSheet("border: 2px solid #ccc; border-radius: 5px; padding: 5px;background-color:white")
@@ -360,10 +371,9 @@ class ModernChatbot(QWidget):
             self.add_message(user_message, "User")
             self.input_field.clear()
             self.show_typing_animation()
-
-
-
-
+            self.show_animation()
+            
+    
     def show_typing_animation(self):
         self.typing_bubble = MessageBubble(". .", "Bot")
         self.chat_layout.insertWidget(self.chat_layout.count() - 1, self.typing_bubble)
@@ -373,6 +383,25 @@ class ModernChatbot(QWidget):
         self.typing_timer = QTimer()
         self.typing_timer.timeout.connect(self.update_typing_animation)
         self.typing_timer.start(500)
+        
+ 
+    def show_animation(self):
+        gif_path = "Learning_Assistant/Tighba_gui/video-2025-04-02-22-12-45-unscreen.gif"
+        movie = QMovie(gif_path)
+        movie.setScaledSize(self.typing_icon.size())  # Resize GIF to icon size
+        self.typing_icon.setMovie(movie)
+        self.typing_icon.setVisible(True)
+        movie.start()
+
+        QTimer.singleShot(3000, self.remove_typing_animation)
+
+    def remove_typing_animation(self):
+        self.typing_icon.setVisible(False)
+      
+
+    
+    
+    
 
     def update_typing_animation(self):
         if self.typing_index < len(self.typing_animation):

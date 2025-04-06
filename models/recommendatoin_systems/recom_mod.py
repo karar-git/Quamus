@@ -1,4 +1,3 @@
-
 #ayooo teeba. well, this is really bad system that it doesn't utilize a lot of features of the item and is just content based(means that it will not utilize the other user to predict better resulsts)
 #and bigger problem, it is not personilized for the user. it will just see if the current prompt or message (just that one not the history, user interests, or what he had take)
 #biggest problem
@@ -32,10 +31,14 @@ def cos_sim_vec(a,b):
     a = tf.nn.l2_normalize(a, axis=-1)
     b = tf.nn.l2_normalize(b, axis=-1)
     return a @ b.T
+def cos_sim_mat(a,b):
+    a = tf.nn.l2_normalize(a, axis=-1)
+    b = tf.nn.l2_normalize(b, axis=-1)
+    return a @ b.T
 
-def get_score(query_embedding, course_embedding, old_personality, last_liked_item):
+
+def get_score(query_embedding, course_embedding, new_personality):
     query_sim = cos_sim(query_embedding, course_embeddings)
-    new_personality = 0.85 * old_personality+ 0.15 * last_liked_item
     personality_sim = cos_sim(new_personality, course_embeddings)
     hybrid_scores = 0.8 * query_sim + 0.2 * personality_sim
     return hybrid_scores
