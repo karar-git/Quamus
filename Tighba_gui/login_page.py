@@ -55,7 +55,7 @@ class Login(QWidget):
 
         # Logo/Image
         label = QLabel(self)
-        pixmap = QPixmap("Learning_Assistant/Tighba_gui/photo_2025-03-27_15-33-18-removebg-preview.png")
+        pixmap = QPixmap("photo_2025-03-27_15-33-18-removebg-preview.png")
 
         pixmap = pixmap.scaled(200, 200, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
         label.setPixmap(pixmap)
@@ -177,7 +177,7 @@ class Regist(QWidget):
         layoutR = QVBoxLayout()
         self.setLayout(layoutR)
         label = QLabel(self)
-        pixmap = QPixmap("Learning_Assistant/Tighba_gui/photo_2025-03-27_15-33-18-removebg-preview.png")
+        pixmap = QPixmap("photo_2025-03-27_15-33-18-removebg-preview.png")
 
         pixmap = pixmap.scaled(200, 200, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
         label.setPixmap(pixmap)
@@ -386,7 +386,7 @@ class ModernChatbot(QWidget):
         
  
     def show_animation(self):
-        gif_path = "Learning_Assistant/Tighba_gui/video-2025-04-02-22-12-45-unscreen.gif"
+        gif_path = "video-2025-04-02-22-12-45-unscreen.gif"
         movie = QMovie(gif_path)
         movie.setScaledSize(self.typing_icon.size())  # Resize GIF to icon size
         self.typing_icon.setMovie(movie)
@@ -432,7 +432,7 @@ app.setStyleSheet("""
 """)
 
 widget = QtWidgets.QStackedWidget()
-widget.setWindowIcon(QIcon("Learning_Assistant/Tighba_gui/photo_2025-03-27_15-33-18-removebg-preview.png"))
+widget.setWindowIcon(QIcon("photo_2025-03-27_15-33-18-removebg-preview.png"))
 widget.resize(350, 320)  
 widget.setWindowTitle(" Quamus ")
 
