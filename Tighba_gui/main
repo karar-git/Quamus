@@ -1,21 +1,24 @@
+
+#just alternitve code in case i lose the main one
+#dart
+
 from PyQt6.QtWidgets import (
     QApplication, QWidget, QPushButton, QLabel,
-    QLineEdit, QGridLayout, QHBoxLayout, QVBoxLayout, QTextEdit,
-    QFrame, QScrollArea, QMessageBox, QSpinBox
+    QLineEdit, QGridLayout, QHBoxLayout, QVBoxLayout,QTextEdit, QFrame, QScrollArea,QMessageBox
 )
 from PyQt6 import QtWidgets
-import sys
-import json
-import os
-from PyQt6.QtCore import Qt, QTimer
-from PyQt6.QtGui import QIcon, QPixmap, QMovie
+import sys,json,os
+from PyQt6.QtCore import Qt,QTimer
+from PyQt6.QtGui import QIcon, QPixmap,QMovie
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'models'))
 
 from chatbot import bot
 
-users_file = "users.json"
 
+
+
+users_file = "users.json"
 
 def load_users():
     if not os.path.exists(users_file):
@@ -56,10 +59,9 @@ class Login(QWidget):
 
         # Logo/Image
         label = QLabel(self)
-        pixmap = QPixmap("Learning_Assistant/Tighba_gui/photo_2025-03-27_15-33-18-removebg-preview.png")
+        pixmap = QPixmap("photo_2025-03-27_15-33-18-removebg-preview.png")
 
-        pixmap = pixmap.scaled(200, 200, Qt.AspectRatioMode.KeepAspectRatio,
-                              Qt.TransformationMode.SmoothTransformation)
+        pixmap = pixmap.scaled(200, 200, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
         label.setPixmap(pixmap)
         label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
@@ -172,7 +174,6 @@ class Login(QWidget):
         else:
             QMessageBox.warning(self, "Error", "Invalid username or password.")
 
-
 class Regist(QWidget):
     def __init__(self):
         super().__init__()
@@ -180,10 +181,9 @@ class Regist(QWidget):
         layoutR = QVBoxLayout()
         self.setLayout(layoutR)
         label = QLabel(self)
-        pixmap = QPixmap("Learning_Assistant/Tighba_gui/photo_2025-03-27_15-33-18-removebg-preview.png")
+        pixmap = QPixmap("photo_2025-03-27_15-33-18-removebg-preview.png")
 
-        pixmap = pixmap.scaled(200, 200, Qt.AspectRatioMode.KeepAspectRatio,
-                              Qt.TransformationMode.SmoothTransformation)
+        pixmap = pixmap.scaled(200, 200, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
         label.setPixmap(pixmap)
         label.setContentsMargins(0, 0, 0, 0)
         label.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -258,13 +258,14 @@ class Regist(QWidget):
         email = self.email_input.text()
         username = self.user_input.text()
         password = self.pass_input.text()
-
+        
         if not email or not username or not password:
-            QMessageBox.warning(self, "Error", "All fields are required,please fill them")
+            QMessageBox.warning(self,"Error","All fields are required,please fill them")
             return
         if "@" not in email or ".com" not in email:
-            QMessageBox.warning(self, "Error", "Please enter a valid email address")
+            QMessageBox.warning(self,"Error","Please enter a valid email address")
             return
+        
 
         # Save the user data in the file
         if save_user(email, username, password):
@@ -274,112 +275,100 @@ class Regist(QWidget):
         else:
             QMessageBox.warning(self, "Error", "Username already exists.")
 
+
+
+# this gonna be updated later        
+#Here is the main window where  recommendations settle
+#class main(QWidget):
+#    def __init__(self):
+#        super().__init__()
+#        layout=QVBoxLayout()
+#        self.setLayout(layout)
+#        title= QLabel  ("main window\n\n\nCourses you might be inserested int:")
+#        layout.addWidget(title)
+#
+        
+
+
+
+
+
+
+
 class MessageBubble(QFrame):
-    def __init__(self, text, sender, courses_for_rating=None):
+    def __init__(self, text, sender):
         super().__init__()
         layout = QHBoxLayout()
-        content_layout = QVBoxLayout()
-        content_layout.setContentsMargins(10, 10, 10, 10) # Add some padding inside
-
-        if courses_for_rating:
-            label = QLabel("Please rate these courses:")
-            label.setWordWrap(True)
-            label.setStyleSheet("font-size: 14px; color: white; padding: 10px;")
-            content_layout.addWidget(label)
-            for course_title, course_index in courses_for_rating:
-                course_layout = QHBoxLayout()
-                course_label = QLabel(course_title)
-                course_label.setStyleSheet("font-size: 14px;")
-                rating_spinbox = QSpinBox()
-                rating_spinbox.setRange(0, 5)
-                course_layout.addWidget(course_label)
-                course_layout.addWidget(rating_spinbox)
-                content_layout.addLayout(course_layout)
-                setattr(self, f"spinbox_{course_index}", rating_spinbox)
-            widget = QWidget()
-            widget.setLayout(content_layout)
-            if sender == "User":
-                widget.setStyleSheet("background-color:white; border-radius: 10px; padding: 10px;")
-                widget.setContentsMargins(15,15,15,15)
-                layout.addStretch()
-                layout.addWidget(widget)
-            else:
-                widget.setStyleSheet("background-color: #4F949D ; border-radius: 10px;color:white; padding: 10px;")
-                layout.addWidget(widget)
-                layout.addStretch()
-
+        label = QLabel(text)
+        label.setWordWrap(True)
+        
+        if sender == "User":
+            label.setStyleSheet("background-color:white; padding: 10px; border-radius: 10px;")
+            layout.addStretch()
+            layout.addWidget(label)
+            
         else:
-            label = QLabel(text)
-            label.setWordWrap(True)
-            if sender == "User":
-                label.setStyleSheet("background-color:white; border-radius: 10px; padding: 10px")
-                layout.addStretch()
-                layout.addWidget(label)
-            else:
-                label.setStyleSheet("background-color: #4F949D ; border-radius: 10px;color:white; padding: 10px")
-                layout.addWidget(label)
-                layout.addStretch()
-            content_layout.addWidget(label)
-            widget = QWidget()
-            widget.setLayout(content_layout)
-            layout.addWidget(widget)
-            if sender == "User":
-                layout.setAlignment(Qt.AlignmentFlag.AlignRight)
-            else:
-                layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
-
-
+            #this gonna be for the bot and the messege will be aligned to the left
+            label.setStyleSheet("background-color: #4F949D ; padding: 10px; border-radius: 10px;color:white")
+            layout.addWidget(label)
+            layout.addStretch()
+        
         self.setLayout(layout)
-
-    def get_course_ratings(self, courses_for_rating):
-        ratings = {}
-        for _, course_index in courses_for_rating:
-            spinbox = getattr(self, f"spinbox_{course_index}", None)
-            if spinbox:
-                ratings[course_index] = spinbox.value()
-        return ratings
-
-
+        
+        
+             
 class ModernChatbot(QWidget):
     def __init__(self):
         super().__init__()
         self.init_ui()
-        self.typing_bubble = None  # Initialize typing_bubble
-        self.last_courses_for_rating = None # To store courses for rating display
 
     def init_ui(self):
+       
+       
         self.setStyleSheet("background-color: #d4cebe")
+
         layout = QVBoxLayout()
+        
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidgetResizable(True)
         self.chat_container = QWidget()
         self.chat_layout = QVBoxLayout(self.chat_container)
         self.chat_layout.addStretch()
+        
         self.scroll_area.setWidget(self.chat_container)
         layout.addWidget(self.scroll_area)
+        
+        # My animation gif
         self.typing_icon = QLabel()
-        self.typing_icon.setStyleSheet("background: transparent;")
+       
+        self.typing_icon.setStyleSheet("background: transparent;") 
         self.typing_icon.setFixedSize(85, 85)
         self.typing_icon.setVisible(False)  # hidden by default
         self.chat_layout.addWidget(self.typing_icon, alignment=Qt.AlignmentFlag.AlignLeft)
+
+        
         input_layout = QHBoxLayout()
         self.input_field = QLineEdit()
-        self.input_field.setStyleSheet(
-            "border: 2px solid #ccc; border-radius: 5px; padding: 5px;background-color:white")
+        self.input_field.setStyleSheet("border: 2px solid #ccc; border-radius: 5px; padding: 5px;background-color:white")
         self.input_field.returnPressed.connect(self.handle_message)  # Handle Enter key press
         input_layout.addWidget(self.input_field)
+        
         self.send_button = QPushButton("Send")
         self.send_button.setStyleSheet("background-color: #007BFF; color: white; border-radius: 5px; padding: 5px;")
         self.send_button.clicked.connect(self.handle_message)
         input_layout.addWidget(self.send_button)
+        
         layout.addLayout(input_layout)
         self.setLayout(layout)
 
-    def add_message(self, text, sender, courses_for_rating=None):
-        message_bubble = MessageBubble(text, sender, courses_for_rating)
+
+
+
+    def add_message(self, text, sender):
+        message_bubble = MessageBubble(text, sender)
         self.chat_layout.insertWidget(self.chat_layout.count() - 1, message_bubble)
         self.scroll_area.verticalScrollBar().setValue(self.scroll_area.verticalScrollBar().maximum())
-        return message_bubble
+
 
     def handle_message(self):
         user_message = self.input_field.text().strip()
@@ -389,7 +378,8 @@ class ModernChatbot(QWidget):
             self.input_field.clear()
             self.show_typing_animation()
             self.show_animation()
-
+            
+    
     def show_typing_animation(self):
         self.typing_bubble = MessageBubble(". .", "Bot")
         self.chat_layout.insertWidget(self.chat_layout.count() - 1, self.typing_bubble)
@@ -399,9 +389,10 @@ class ModernChatbot(QWidget):
         self.typing_timer = QTimer()
         self.typing_timer.timeout.connect(self.update_typing_animation)
         self.typing_timer.start(500)
-
+        
+ 
     def show_animation(self):
-        gif_path = "Learning_Assistant/Tighba_gui/video-2025-04-02-22-12-45-unscreen.gif"
+        gif_path = "video-2025-04-02-22-12-45-unscreen.gif"
         movie = QMovie(gif_path)
         movie.setScaledSize(self.typing_icon.size())  # Resize GIF to icon size
         self.typing_icon.setMovie(movie)
@@ -412,77 +403,33 @@ class ModernChatbot(QWidget):
 
     def remove_typing_animation(self):
         self.typing_icon.setVisible(False)
+      
+
+    
+    
+    
 
     def update_typing_animation(self):
-        if self.typing_bubble:  # Check if typing_bubble exists
-            label_item = self.typing_bubble.layout().itemAt(0)
-            if label_item and label_item.widget() and isinstance(label_item.widget(), QLabel):
-                if self.typing_index < len(self.typing_animation):
-                    label_item.widget().setText(self.typing_animation[self.typing_index])
-                    self.typing_index += 1
-                else:
-                    self.typing_timer.stop()
-                    self.chat_layout.removeWidget(self.typing_bubble)
-                    self.typing_bubble.deleteLater()
-                    self.typing_bubble = None  # Reset typing_bubble
-                    QTimer.singleShot(500, self.process_bot_response)  # Delay before response
-            else:
-                self.typing_timer.stop()
-                if self.typing_bubble in self.chat_layout:
-                    self.chat_layout.removeWidget(self.typing_bubble)
-                    self.typing_bubble.deleteLater()
-                    self.typing_bubble = None
-                QTimer.singleShot(500, self.process_bot_response)  # Fallback
+        if self.typing_index < len(self.typing_animation):
+            self.typing_bubble.layout().itemAt(0).widget().setText(self.typing_animation[self.typing_index])
+            self.typing_index += 1
+        else:
+            self.typing_timer.stop()
+            self.chat_layout.removeWidget(self.typing_bubble)
+            self.typing_bubble.deleteLater()
+            QTimer.singleShot(500, self.show_bot_response)  # Delay before response
 
-    def process_bot_response(self):
+    def show_bot_response(self):
         bot_response = self.get_response(self.last_user_message)
-        if isinstance(bot_response, list) and all(isinstance(item, tuple) and len(item) == 2 for item in
-                                                 bot_response):
-            self.last_courses_for_rating = bot_response # Store the courses for rating display later
-            self.display_courses_for_rating(bot_response)
-        else:
-            self.add_message(bot_response, "Bot")
+        self.add_message(bot_response, "Bot")
 
-    def display_courses_for_rating(self, courses_with_indices):
-        self.rating_message_bubble = self.add_message("Please rate these courses:", "Bot",
-                                                    courses_for_rating=courses_with_indices)
-        submit_button_layout = QHBoxLayout()
-        submit_button = QPushButton("Submit Ratings")
-        submit_button.clicked.connect(self.collect_ratings)
-        submit_button_layout.addStretch()
-        submit_button_layout.addWidget(submit_button)
-        submit_button_layout.addStretch()
-        submit_widget = QWidget()
-        submit_widget.setLayout(submit_button_layout)
-        self.chat_layout.insertWidget(self.chat_layout.count() - 1, submit_widget)
-        self.scroll_area.verticalScrollBar().setValue(self.scroll_area.verticalScrollBar().maximum())
-    def collect_ratings(self):
-        if self.rating_message_bubble and self.last_courses_for_rating:
-            ratings = self.rating_message_bubble.get_course_ratings(self.last_courses_for_rating)
-            rated_courses_info = []
-            if ratings:
-                for (title, index), rating in zip(self.last_courses_for_rating, ratings.values()):
-                    if rating > 0:  # Check if the rating is greater than 0
-                        rated_courses_info.append(f"- {title}: {rating}/5")
-
-                if rated_courses_info:
-                    ratings_text = "You rated the following courses:\n" + "\n".join(rated_courses_info)
-                    self.add_message(ratings_text, "Bot")
-                else:
-                    self.add_message("No courses were rated.", "Bot")
-            else:
-                self.add_message("No courses were rated.", "Bot")
-        self.rating_message_bubble = None  # Reset for next rating request
-        self.last_courses_for_rating = None # Reset stored courses
-
+#Testing the gui with a simple bot
     def get_response(self, message):
-        #just for testing
-        if "recommend" in message.lower():
-            courses = [("Introduction to AI", 101), ("Advanced Machine Learning", 102),
-                       ("Natural Language Processing", 103), ("Computer Vision Basics", 104)]
-            return courses
-        else:
-            return bot.handle_message(message)
+        
+        return bot.handle_message(message)
+
+
+
 
 app = QApplication(sys.argv)
 app.setStyleSheet("""
@@ -491,13 +438,14 @@ app.setStyleSheet("""
 """)
 
 widget = QtWidgets.QStackedWidget()
-widget.setWindowIcon(QIcon("Learning_Assistant/Tighba_gui/photo_2025-03-27_15-33-18-removebg-preview.png"))
-widget.resize(350, 320)
+widget.setWindowIcon(QIcon("photo_2025-03-27_15-33-18-removebg-preview.png"))
+widget.resize(350, 320)  
 widget.setWindowTitle(" Quamus ")
 
-login = Login()
-regist = Regist()
-main_chat = ModernChatbot()
+
+login=Login()
+regist=Regist()
+main_chat=ModernChatbot()
 widget.addWidget(login)
 widget.addWidget(regist)
 widget.addWidget(main_chat)
@@ -508,26 +456,7 @@ widget.show()
 
 sys.exit(app.exec())
 
-app = QApplication(sys.argv)
-app.setStyleSheet("""
-    QLineEdit { background-color: white; padding: 5px; border-radius: 5px; }
-    QPushButton { font-size: 16px; padding: 5px; border-radius: 5px; }
-""")
 
-widget = QtWidgets.QStackedWidget()
-widget.setWindowIcon(QIcon("Learning_Assistant/Tighba_gui/photo_2025-03-27_15-33-18-removebg-preview.png"))
-widget.resize(350, 320)
-widget.setWindowTitle(" Quamus ")
 
-login = Login()
-regist = Regist()
-main_chat = ModernChatbot()
-widget.addWidget(login)
-widget.addWidget(regist)
-widget.addWidget(main_chat)
 
-widget.setStyleSheet("background-color:#4F949D ")
-widget.setCurrentIndex(0)
-widget.show()
 
-sys.exit(app.exec())
