@@ -1,41 +1,32 @@
-#ayooo
-
-#    |███████|        |███████|
-#    |███████|        |███████|
-#    |███████|        |███████|
-#    ...              ...
-#    |███████|        |███████|
-#    |███████|        |███████|
-#    |███████|        |███████|
-#    |███████|        |███████|
-#==================================#
-
 if __name__=='__main__':
     import numpy as np
     import tensorflow as tf
     from tensorflow.keras import layers, Model, utils
+    from tensorflow.keras.callbacks import EarlyStopping
+    from tensorflow.keras.callbacks import ModelCheckpoint
 
-# 1. Create a simplified model that handles the weighted combination directly
 class VectorCombiner(Model):
     def __init__(self, vector_dim):
         super(VectorCombiner, self).__init__()
-        self.dense = layers.Dense(vector_dim, activation='linear')
+        self.dense = tf.keras.Sequential([
+            layers.Dense(128,activation = 'relu', input_shape=(vector_dim * 2,)),
+            layers.Dense(vector_dim,activation = 'linear')
+                                          ])
         
     def call(self, inputs):
-        # inputs should be a tuple of (vector1, vector2)
         combined = tf.concat(inputs, axis=-1)
         return self.dense(combined)
 
-# 2. Memory-efficient data generation
 def generate_pairs(data, batch_size=1024):
     n = len(data)
     while True:
-        # Randomly sample pairs without storing all combinations
         indices = np.random.randint(0, n, size=(batch_size, 2))
-        vec1 = data[indices[:, 0]]
-        vec2 = data[indices[:, 1]]
+        # Build the batch arrays using list comprehensions
+        vec1 = np.array([data[i] for i in indices[:, 0]], dtype=np.float32)
+        vec2 = np.array([data[i] for i in indices[:, 1]], dtype=np.float32)
         target = 0.9 * vec1 + 0.1 * vec2
-        yield [vec1, vec2], target
+        yield (vec1, vec2), target
+        
 
 # 3. Modified main function
 def main():
@@ -47,30 +38,61 @@ def main():
     model = VectorCombiner(vector_dim)
     
     # Compile model
-    model.compile(optimizer='adam', loss='mse')
+    optimizer = tf.keras.optimizers.Adam(learning_rate=1e-4, clipnorm=1.0)
+    model.compile(optimizer=optimizer , loss='mse', metrics=['mae'])
     
     # Create dataset using generator
+#    dataset = tf.data.Dataset.from_generator(
+#        lambda: generate_pairs(data)
+#    )#.prefetch(tf.data.AUTOTUNE)
     dataset = tf.data.Dataset.from_generator(
-        lambda: generate_pairs(data),
-        output_types=(tf.float64, tf.float64),
-        output_shapes=([None, vector_dim], [None, vector_dim])
-    ).prefetch(tf.data.AUTOTUNE)
+        lambda: generate_pairs(data, batch_size=1024),
+        output_signature=(
+            (
+                tf.TensorSpec(shape=(None, vector_dim), dtype=tf.float32),  # vec1
+                tf.TensorSpec(shape=(None, vector_dim), dtype=tf.float32),  # vec2
+            ),
+            tf.TensorSpec(shape=(None, vector_dim), dtype=tf.float32)       # target
+        )
+    )
     
     # Train with memory-efficient approach
+
+
+    #early_stopping = EarlyStopping(
+    #    #monitor='val_loss',
+    #    patience=2,
+    #    restore_best_weights=True
+    #)
+    checkpoint_callback = ModelCheckpoint(
+        filepath='./final_Models/personality.weights.h5',  # file to save weights
+        monitor='loss',                    # metric to monitor; change to 'val_loss' if using validation data
+        save_best_only=True,               # only save weights if the monitored metric improves
+        save_weights_only=True,            # only save the weights (not the entire model)
+        verbose=1
+    )
     model.fit(
         dataset,
-        steps_per_epoch=100,  # Adjust based on your needs
-        epochs=10,
-        callbacks=[
-            tf.keras.callbacks.ModelCheckpoint(
-                '../recommendatoin_systems/final_Models/personality.keras',
-                save_best_only=True
-            )
-        ]
+        steps_per_epoch=100,
+        epochs=100,
+        #shuffle=True,
+        callbacks=[checkpoint_callback]
+        #validation_data=(how to add validatoin for data generation?, ?)
     )
+    #test_dataset = tf.data.Dataset.from_generator(
+    #    lambda: generate_pairs(data, batch_size=1024),
+    #    output_signature=(
+    #        (
+    #            tf.TensorSpec(shape=(None, vector_dim), dtype=tf.float32),
+    #            tf.TensorSpec(shape=(None, vector_dim), dtype=tf.float32),
+    #        ),
+    #        tf.TensorSpec(shape=(None, vector_dim), dtype=tf.float32)
+    #    )
+    #)
+
+    #results = model.evaluate(test_dataset, steps=10, verbose=1)
+
 
 if __name__ == '__main__':
     main()
-
-
 
