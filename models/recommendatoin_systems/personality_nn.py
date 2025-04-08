@@ -1,7 +1,7 @@
+from tensorflow.keras import layers, Model, utils
+import tensorflow as tf
 if __name__=='__main__':
     import numpy as np
-    import tensorflow as tf
-    from tensorflow.keras import layers, Model, utils
     from tensorflow.keras.callbacks import EarlyStopping
     from tensorflow.keras.callbacks import ModelCheckpoint
 
@@ -96,3 +96,9 @@ def main():
 if __name__ == '__main__':
     main()
 
+vec_dim = 446
+personality_updater = VectorCombiner(vec_dim)
+dummy_vec1 = tf.zeros([1, vec_dim], dtype=tf.float32)
+dummy_vec2 = tf.zeros([1, vec_dim], dtype=tf.float32)
+personality_updater((dummy_vec1, dummy_vec2))
+personality_updater.load_weights('/home/karar/Desktop/recom/models/recommendatoin_systems/final_Models/personality.weights.h5')

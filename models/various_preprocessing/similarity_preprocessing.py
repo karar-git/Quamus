@@ -1,20 +1,20 @@
 import joblib
 from tensorflow import convert_to_tensor, data
 import numpy as np
-from utils import Autoencoder
 from sklearn.preprocessing import OneHotEncoder
 from sentence_transformers import SentenceTransformer
 import pandas as pd
 import tensorflow as tf
-
-tf.experimental.numpy.experimental_enable_numpy_behavior()
+if __name__=='__main__':
+    from utils import Autoencoder
+    tf.experimental.numpy.experimental_enable_numpy_behavior()
 #pd.set_option('display.max_columns', None)
 #pd.set_option('display.max_colwidth', None)
 ## Load the model
 #my_vect_model = SentenceTransformer("paraphrase-MiniLM-L12-v2")
 ## Load JSON data
 #data = pd.read_json('./combined_dataset.json').copy()
-def pipe_for_sim(dataaaa):
+def pipe_for_sim(dataaaa, my_vect_model, mlb_skill, encoder_skill):
     #dataaaa['description'] = 'title: ' + dataaaa['course_name'] + " | description: "+ dataaaa['description']
     dataaaa.drop(columns=['url', 'course_name','organization', 'instructor', 'subject', 'has_subject', 'reviews'],inplace = True)
     dataaaa.fillna(0, inplace = True)
@@ -42,8 +42,15 @@ def pipe_for_sim(dataaaa):
             return 0
         return rating
     dataaaa['rating'] = dataaaa['rating'].apply(change)
-    dataaaa['description'] = my_vect_model.encode(dataaaa['description']).tolist()
 
+
+
+    dataaaa['description'] = dataaaa['description'].astype(str)
+
+    # 2) Encode descriptions
+    desc_list = dataaaa['description'].tolist()
+    desc_embs = my_vect_model.encode(desc_list)
+    dataaaa['description'] = desc_embs.tolist()
 
     skills_array = mlb_skill.transform(dataaaa['skills'])  # Expecting shape: (13793, 11898)
     skills_tensor = tf.convert_to_tensor(skills_array, dtype=tf.float32)
@@ -63,35 +70,69 @@ def pipe_for_sim(dataaaa):
     return dataaaa.apply(conca, axis =1)
 
 #normalization_layer = tf.keras.layers.Normalization()
-def all_data(data):
+def all_data(data, my_vect_model):
 
     #data['skills'] = data['skills'].apply(lambda x: [] if x == ['NaN'] else x)
     #dataa = pipe_for_sim(data)
-    dataa = pipe_for_sim(data)
+    dataa = pipe_for_sim(dataa, my_vect_model)
+    #dataa = np.array(dataa, dtype=np.float32)
+    dataa.shape
+    dataa = np.vstack(dataa.to_numpy())
+    #tf.saved_model.save(normalization_layer, '../recommendatoin_systems/final_Models/norm_layer')
+
+
+
+    # Suppose feature_dim = number of inputs (e.g. 446)
+    feature_dim = 446
+
+    # 1) Wrap your layer in a tiny Model
+
+    inputs = tf.keras.Input(shape=(feature_dim,))
+
     normalization_layer = tf.keras.layers.Normalization()
+    outputs = normalization_layer(inputs)
     normalization_layer.adapt(dataa)
-    tf.saved_model.save(normalization_layer, '../recommendatoin_systems/final_Models/norm_layer')
+    norm_model = tf.keras.Model(inputs=inputs, outputs=outputs)
+
+    # 2) (Optional) call on dummy to build
+    _ = norm_model(tf.zeros([1, feature_dim]))
+
+    # 3) Save as a .keras file
+    norm_model.save(
+        '../recommendatoin_systems/final_Models/norm_layer.keras',
+        save_format='keras'
+    )
+
     encoded_data = normalization_layer(dataa)
 
     return encoded_data
-def user_embedding(data):
-    the_vector=pipe_for_sim(data)
-    encoded_data = normalization_layer(the_vector)
+def user_embedding(data, my_vect_model, mlb_skills, normalization_layer, encoder_skills):
+    the_vector=pipe_for_sim(data, my_vect_model, mlb_skills, encoder_skills)
+
+    matrix = np.stack(the_vector.values)  # shape=(N, D), dtype=float
+
+    # 3) convert to tensor (if your norm layer expects tf.Tensor)
+    tensor = tf.convert_to_tensor(matrix, dtype=tf.float32)
+
+    
+    encoded_data = normalization_layer(tensor)
     return encoded_data
 #AWHAT = pipe_for_sim(data)
 def main():
 
     my_vect_model = SentenceTransformer("paraphrase-MiniLM-L12-v2")
-    dataa = pd.read_json('./combined_dataset.json')
+    dataa = pd.read_json('./combined_dataset.json').copy()
     mlb_skill = joblib.load('../recommendatoin_systems/final_Models/mlb_skill.pkl')
     input_shape = 11898
     encoder_skill = Autoencoder(input_shape, latent_dim=24)
-    encoder_skill.build(input_shape)
+
+    dummy_input = tf.keras.Input(shape=(input_shape,))
+    encoder_skill(dummy_input)  # Build the model
     encoder_skill.load_weights('../recommendatoin_systems/final_Models/autoencoderweights.weights.h5')
     
     # Check the encoder_skill's architecture
     encoder_skill.summary()
-    encoded_final_ = all_data(dataa)
+    encoded_final_ = all_data(dataa, my_vect_model)
     np.save("../data/encoded_data.npy", encoded_final_)
     print("Embeddings have been successfully saved!")
 
