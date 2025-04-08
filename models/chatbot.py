@@ -2,14 +2,15 @@
 #in the genera, if the skill doesn't exist in the dataset what will happen? if the multilabel assign it to [0,0,0], then it should be good, or depends on how the normalization will behave (will it affect?)
 # in the recommend function of the recommender let it update the user personality vector
 import google.generativeai as genai
-#from various_preprocessing.similarity_preprocessing import user_embedding
+from various_preprocessing.similarity_preprocessing import user_embedding
 import pandas as pd
 import re
 
 genai.configure(api_key="AIzaSyA4MILwVj31XawUJSt3xmdsS2yDRA3wnGY")
 
 class CourseRecommenderBot:
-    def __init__(self):
+    def __init__(self, dataset):
+        self.combined_dataset = dataset
         self.model = genai.GenerativeModel("gemini-2.0-flash")
         self.chat = self.model.start_chat()#history=[])
         #self.required_fields = ['skills', 'level']
@@ -34,6 +35,7 @@ class CourseRecommenderBot:
         provider: <coursera|edx|N/A>
         number_of_recommendation: <maximam is 10, default is 5>
         do not lower the case or capilize it, just as how i wrote it (Beginner not beginner, mix not Mix)
+        Do Not return emtpy stuff like that {}, and do what i said, restrict ur self to that pattern
 
         [When the user asks about something not related to course recommendation]
         NOT RECOMMENDATION: <maintain conversational flow but tell him that this is QUAMUS which is a recommendation system duck >
@@ -56,20 +58,21 @@ class CourseRecommenderBot:
     #    missing = [field for field in self.required_fields if not data.get(field) or data[field].lower() == 'n/a']
     #    return missing
     
-    def _generate_recommendations(self, criteria, user_input):
-        #user_vector = pd.DataFrame(columns = combined_dataset.columns)
-        #criteria['skills'] = criteria['skills'].split(',') if criteria['skills'] != "N/A" else ['NaN']
-        #for i in criteria.keys[:-1]:
-            #if criteria != "N/A"
-                #user_vector[i] = criteria[i]
-        #user_vector['title'] = ""
-        #user_vector = user_embedding(user_vector)
+    def _generate_recommendations(self, criteria, user_input, my_vect_model, mlb_skills, normalization_layer, encoder_skills):
+        user_vector = pd.DataFrame(columns = self.combined_dataset.columns)
+        if criteria != {}:
+            criteria['skills'] = criteria['skills'].split(',') if criteria['skills'] != "N/A" else ['NaN']
+            for i in list(criteria.keys())[:-1]:
+                if criteria[i] != "N/A":
+                   user_vector[i] = criteria[i]
+            user_vector['title'] = ""
+        else:
+            user_vector['description'] = self.holy_message
+        user_vector = user_embedding(user_vector, my_vect_model, mlb_skills, normalization_layer, encoder_skills)
         
-        #recommendations = recommender.recommed(user_vector, criteria[-1])
-        #formatted_response = self._format_with_llm(recommendations)
-        #return formatted_response
-
-        return "help"
+        recommendations = recom.recommend(user_vector)
+        formatted_response = self._format_with_llm(self.combined_dataset[recommendations])
+        return formatted_response
     
     def _format_with_llm(self, recommendations):
         # Construct a prompt for the LLM
@@ -77,6 +80,7 @@ class CourseRecommenderBot:
             "You are a helpful assistant that formats raw course recommendations into a friendly and "
             "engaging message. The raw recommendations are provided below. Please rephrase them into a beautiful, "
             "conversational response that is easy for the user to understand.\n\n"
+            "but becareful, first word should be RECOMMENDED: so i know it is recommendation"
             "Raw Recommendations:\n"
             f"{recommendations}\n\n"
             "Formatted Response:"
@@ -84,7 +88,7 @@ class CourseRecommenderBot:
     
         response = self.model.generate_content(prompt)
         return response.text
-    def handle_message(self, user_input):
+    def handle_message(self, user_input, my_vect_model, mlb_skills, normalizatoin_layer, encoder_skills):
         # Add user message to history
         self._append_to_history("user", user_input)
         
@@ -106,14 +110,15 @@ class CourseRecommenderBot:
 
 
 
-            formatted_response= self._generate_recommendations(data, user_input)
+            self.holy_message =user_input 
+            formatted_response= self._generate_recommendations(data, user_input, my_vect_model, mlb_skills, normalizatoin_layer,encoder_skills)
             #rec_text = "\n".join(recommendations)
             #formatted_response = f"RECOMMEND: Here are some courses you might like:\n{rec_text}"
             self._append_to_history("assistant", formatted_response)
             return formatted_response
 
 # Usage Example
-bot = CourseRecommenderBot()
+bot = CourseRecommenderBot(pd.read_json('/home/karar/Desktop/recom/data_scraping/preprocessed/combined_dataset.json'))
 
 #I deleted cat flow ,,
 

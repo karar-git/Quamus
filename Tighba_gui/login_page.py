@@ -1,3 +1,18 @@
+#global variables
+import joblib
+from tensorflow import Variable, zeros
+
+from tensorflow.keras import layers, Model, utils
+#from tensorflow.keras.callbacks import EarlyStopping
+from sentence_transformers import SentenceTransformer
+from tensorflow.keras.callbacks import ModelCheckpoint
+import numpy as np
+import pandas as pd
+
+#combined_dataset = pd.read_json('/home/karar/Desktop/recom/data_scraping/preprocessed/combined_dataset.json')
+import tensorflow as tf
+
+
 from PyQt6.QtWidgets import (
     QApplication, QWidget, QPushButton, QLabel,
     QLineEdit, QGridLayout, QHBoxLayout, QVBoxLayout, QTextEdit,
@@ -12,9 +27,38 @@ from PyQt6.QtGui import QIcon, QPixmap, QMovie
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'models'))
 
+import recommendatoin_systems.two_tower_model
 from chatbot import bot
-
+from various_preprocessing.utils import Autoencoder
+from recommendatoin_systems.personality_nn import VectorCombiner
 users_file = "users.json"
+
+
+items_embedd = np.load('./item_embedding.npy')
+items_embedd = np.stack(items_embedd)
+items_embedd = tf.convert_to_tensor(items_embedd , dtype=tf.float32)
+
+user_personality = Variable(zeros([len(items_embedd[1])]))
+vec_dim = len(items_embedd[1])
+
+my_vect_model = SentenceTransformer("paraphrase-MiniLM-L12-v2")
+mlb_skill = joblib.load('../models/recommendatoin_systems/final_Models/mlb_skill.pkl')
+
+skill_dim= 11898
+encoder_skill = Autoencoder(skill_dim, latent_dim=24)
+
+dummy_input = tf.keras.Input(shape=(skill_dim,))
+encoder_skill(dummy_input)  # Build the model
+encoder_skill.load_weights('../models/recommendatoin_systems/final_Models/autoencoderweights.weights.h5')
+#normalization_layer = tf.keras.layers.Normalization()
+
+normalization_layer = tf.keras.models.load_model(
+    '../models/recommendatoin_systems/final_Models/norm_layer.keras',
+    custom_objects={'Normalization': tf.keras.layers.Normalization}
+)
+#normalization_layer = tf.keras.models.load_model('../models/recommendatoin_systems/final_Models/norm_layer')
+
+
 
 
 def load_users():
@@ -56,7 +100,7 @@ class Login(QWidget):
 
         # Logo/Image
         label = QLabel(self)
-        pixmap = QPixmap("Learning_Assistant/Tighba_gui/photo_2025-03-27_15-33-18-removebg-preview.png")
+        pixmap = QPixmap("photo_2025-03-27_15-33-18-removebg-preview.png")
 
         pixmap = pixmap.scaled(200, 200, Qt.AspectRatioMode.KeepAspectRatio,
                               Qt.TransformationMode.SmoothTransformation)
@@ -180,7 +224,7 @@ class Regist(QWidget):
         layoutR = QVBoxLayout()
         self.setLayout(layoutR)
         label = QLabel(self)
-        pixmap = QPixmap("Learning_Assistant/Tighba_gui/photo_2025-03-27_15-33-18-removebg-preview.png")
+        pixmap = QPixmap("photo_2025-03-27_15-33-18-removebg-preview.png")
 
         pixmap = pixmap.scaled(200, 200, Qt.AspectRatioMode.KeepAspectRatio,
                               Qt.TransformationMode.SmoothTransformation)
@@ -401,7 +445,7 @@ class ModernChatbot(QWidget):
         self.typing_timer.start(500)
 
     def show_animation(self):
-        gif_path = "Learning_Assistant/Tighba_gui/video-2025-04-02-22-12-45-unscreen.gif"
+        gif_path = "video-2025-04-02-22-12-45-unscreen.gif"
         movie = QMovie(gif_path)
         movie.setScaledSize(self.typing_icon.size())  # Resize GIF to icon size
         self.typing_icon.setMovie(movie)
@@ -477,12 +521,13 @@ class ModernChatbot(QWidget):
 
     def get_response(self, message):
         #just for testing
-        if "recommend" in message.lower():
+        if "RECOMMENDED:" in message:
+
             courses = [("Introduction to AI", 101), ("Advanced Machine Learning", 102),
                        ("Natural Language Processing", 103), ("Computer Vision Basics", 104)]
             return courses
         else:
-            return bot.handle_message(message)
+            return bot.handle_message(message, my_vect_model, mlb_skill, normalization_layer , encoder_skill)
 
 app = QApplication(sys.argv)
 app.setStyleSheet("""
@@ -491,7 +536,7 @@ app.setStyleSheet("""
 """)
 
 widget = QtWidgets.QStackedWidget()
-widget.setWindowIcon(QIcon("Learning_Assistant/Tighba_gui/photo_2025-03-27_15-33-18-removebg-preview.png"))
+widget.setWindowIcon(QIcon("photo_2025-03-27_15-33-18-removebg-preview.png"))
 widget.resize(350, 320)
 widget.setWindowTitle(" Quamus ")
 
@@ -515,7 +560,7 @@ app.setStyleSheet("""
 """)
 
 widget = QtWidgets.QStackedWidget()
-widget.setWindowIcon(QIcon("Learning_Assistant/Tighba_gui/photo_2025-03-27_15-33-18-removebg-preview.png"))
+widget.setWindowIcon(QIcon("photo_2025-03-27_15-33-18-removebg-preview.png"))
 widget.resize(350, 320)
 widget.setWindowTitle(" Quamus ")
 

@@ -1,19 +1,10 @@
-#ayooo teeba. well, this is really bad system that it doesn't utilize a lot of features of the item and is just content based(means that it will not utilize the other user to predict better resulsts)
-#and bigger problem, it is not personilized for the user. it will just see if the current prompt or message (just that one not the history, user interests, or what he had take)
-#biggest problem
-#i generated it with chatgpt
-#but however, it is just a base one and could be change entirly, just a one so that i nevermind if we will can done on time for that part
-
-# here is the main recommendation system
-#import processing_text
-
 import numpy as np
 import tensorflow as tf
 import pandas as pd
 from sentence_transformers import SentenceTransformer
 
 class PersonalityVector:
-    def __init__(self, dim=384):
+    def __init__(self, dim=446):
         self.vector = tf.Variable(tf.zeros(dim), dtype=tf.float32)
         self.decay = 0.85  # Base decay rate
     
@@ -57,7 +48,7 @@ def recommend(user_query, top=5, top_k=40):
     # Get top candidates
     topk = tf.math.top_k(query_sim, top_k).indices
     
-    if nu_of_interaction > 5:
+    if nu_of_interaction > -1:
         personality_sim = cos_sim(personality_vector, tf.gather(course_embeddings, topk))
         hybrid_scores = 0.8 * tf.gather(query_sim, topk) + 0.2 * personality_sim
         sorted_indices = tf.argsort(hybrid_scores, direction='DESCENDING')
@@ -69,7 +60,9 @@ def recommend(user_query, top=5, top_k=40):
 def main():
     course_data = pd.read_json('../various_preprocessing/combined_dataset.json')
 
-    course_embeddings = np.load('../data/encoded_data.npy')
+
+    course_embeddings = np.load('../data/encoded_data.npy', allow_pickle=True)
+    course_embeddings = np.stack(course_embeddings)  # or np.vstack(course_embeddings) if appropriate
     course_embeddings = tf.convert_to_tensor(course_embeddings, dtype= tf.float32)
     #course_embeddings.shape
 
@@ -78,7 +71,7 @@ def main():
     # load a sentencetransformer model for encoding user queries
     query_model = SentenceTransformer('paraphrase-minilm-l12-v2')
 
-    personality_vector = tf.Variable(tf.zeros(384, dtype=tf.float32))
+    personality_vector = tf.Variable(tf.zeros(446, dtype=tf.float32))
     nu_of_interaction = 0
     # example usage:
     user_query = "ayoooo, i wanna learn nlp in practical way"
