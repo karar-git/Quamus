@@ -119,13 +119,13 @@ class Login(QWidget):
         label1 = QLabel("Username:")
         label1.setStyleSheet("font-size: 20px;color:#F5EEDC;")
         self.user_input = QLineEdit()
-        self.user_input.setStyleSheet("font-size: 16px; height: 25px;background-color:white;")
+        self.user_input.setStyleSheet("font-size: 22px; height: 25px;background-color:white;")
         self.user_input.setPlaceholderText("Enter your username (e.g. teeba99)")
 
         label2 = QLabel("Password:")
         label2.setStyleSheet("font-size: 20px; color:#F5EEDC; ")
         self.pass_input = QLineEdit()
-        self.pass_input.setStyleSheet("font-size: 16px; height: 25px;background-color:white; ")
+        self.pass_input.setStyleSheet("font-size: 22px; height: 25px;background-color:white; ")
         self.pass_input.setPlaceholderText("Enter your password")
         self.pass_input.setEchoMode(QLineEdit.EchoMode.Password)
 
@@ -146,7 +146,7 @@ class Login(QWidget):
 
         button1.setStyleSheet("""
                 QPushButton{
-                     font-size: 16px; 
+                     font-size: 22px; 
                     padding: 6px;
                     background-color:#b35c44; 
                     color:white;
@@ -163,7 +163,7 @@ class Login(QWidget):
 
         button2.setStyleSheet("""
                                QPushButton{
-                     font-size: 16px; 
+                     font-size: 22px; 
                     padding: 6px;
                     background-color:#b35c44; 
                     color:white;
@@ -245,20 +245,20 @@ class Regist(QWidget):
         labelR.setStyleSheet("font-size: 20px;color:#F5EEDC;")
 
         self.email_input = QLineEdit()
-        self.email_input.setStyleSheet("font-size: 16px; height: 25px;background-color:white;")
+        self.email_input.setStyleSheet("font-size: 22px; height: 25px;background-color:white;")
         self.email_input.setPlaceholderText("Enter your email (e.g. teeba99@gmail.com)")
 
         labelR3 = QLabel("Username:")
         labelR3.setStyleSheet("font-size: 20px; color:#F5EEDC; ")
         self.user_input = QLineEdit()
-        self.user_input.setStyleSheet("font-size: 16px; height: 25px;background-color:white; ")
+        self.user_input.setStyleSheet("font-size: 22px; height: 25px;background-color:white; ")
         self.user_input.setPlaceholderText("Enter your Username")
 
         labelR2 = QLabel("Password:")
         labelR2.setStyleSheet("font-size: 20px; color: #F5EEDC; ")
 
         self.pass_input = QLineEdit()
-        self.pass_input.setStyleSheet("font-size: 16px; height: 25px;background-color:white; ")
+        self.pass_input.setStyleSheet("font-size: 22px; height: 25px;background-color:white; ")
         self.pass_input.setPlaceholderText("Enter your password")
         self.pass_input.setEchoMode(QLineEdit.EchoMode.Password)
 
@@ -278,7 +278,7 @@ class Regist(QWidget):
         buttonM = QPushButton("Regist")
         buttonM.setStyleSheet("""
                 QPushButton{
-                     font-size: 16px; 
+                     font-size: 22px; 
                     padding: 6px;
                     background-color:#b35c44; 
                     color:white;
@@ -534,7 +534,7 @@ class ModernChatbot(QWidget):
 app = QApplication(sys.argv)
 app.setStyleSheet("""
     QLineEdit { background-color: white; padding: 5px; border-radius: 5px; }
-    QPushButton { font-size: 16px; padding: 5px; border-radius: 5px; }
+    QPushButton { font-size: 22px; padding: 5px; border-radius: 5px; }
 """)
 
 widget = QtWidgets.QStackedWidget()
@@ -558,7 +558,7 @@ sys.exit(app.exec())
 app = QApplication(sys.argv)
 app.setStyleSheet("""
     QLineEdit { background-color: white; padding: 5px; border-radius: 5px; }
-    QPushButton { font-size: 16px; padding: 5px; border-radius: 5px; }
+    QPushButton { font-size: 22px; padding: 5px; border-radius: 5px; }
 """)
 
 widget = QtWidgets.QStackedWidget()
