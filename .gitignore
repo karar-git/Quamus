@@ -1,24 +1,24 @@
 # Ignore specific file types globally
 **/*.csv
-**/*.npy
+#**/*.npy
 **/*.tex
 **/*.pdf
-**/*.json
+#**/*.json
 
-models/recommendation_systems/final_Models
+#models/recommendation_systems/final_Models
 # Exception for a specific JSON file
 !models/combined_dataset.json
 
 <<<<<<< HEAD
 #models/
 =======
-models/
->>>>>>> c5b443af86e2eddcb74984c87b9e4213ec05fdca
-!models/chatbot.py
+#models/
+#>>>>>>> c5b443af86e2eddcb74984c87b9e4213ec05fdca
+#!models/chatbot.py
 
 # Ignore directories and specific files
 **/*jukit
 **/__pycache__/
-models/my_vect_model/
+!models/my_vect_model/
 resources_for_recom/
 
