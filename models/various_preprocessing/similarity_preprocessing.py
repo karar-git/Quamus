@@ -14,7 +14,8 @@ if __name__=='__main__':
 #my_vect_model = SentenceTransformer("paraphrase-MiniLM-L12-v2")
 ## Load JSON data
 #data = pd.read_json('./combined_dataset.json').copy()
-def pipe_for_sim(dataaaa, my_vect_model, mlb_skill, encoder_skill):
+
+def pipe_for_sim(dataaaa, my_vect_model, mlb_skill, encoder_skill, level_enc, provider_enc, type_enc):
     #dataaaa['description'] = 'title: ' + dataaaa['course_name'] + " | description: "+ dataaaa['description']
     dataaaa.drop(columns=['url', 'course_name','organization', 'instructor', 'subject', 'has_subject', 'reviews'],inplace = True)
     dataaaa.fillna(0, inplace = True)
@@ -32,11 +33,19 @@ def pipe_for_sim(dataaaa, my_vect_model, mlb_skill, encoder_skill):
             else: return "mixed"
         else: return dataaaaaaa 
     dataaaa['level'] = dataaaa['level'].apply(level_handler)
-    for i in ['level', 'provider', 'type']:
-        encoder = OneHotEncoder(sparse_output=False)
-        encoded_= encoder.fit_transform(dataaaa[[i]])  
 
-        dataaaa[i] = encoded_.tolist()  
+    encoders = {
+        'level': level_enc,
+        'provider': provider_enc,
+        'type': type_enc
+    }
+
+    for i in ['level', 'provider', 'type']:
+       # encoded_= f"{i}_enc".transform(dataaaa[[i]])  
+       # dataaaa[i] = encoded_.tolist()  
+        encoded_ = encoders[i].transform(dataaaa[[i]])
+        dataaaa[i] = encoded_.tolist()
+
     def change(rating):
         if rating == 'No rating':
             return 0
@@ -106,8 +115,8 @@ def all_data(data, my_vect_model):
     encoded_data = normalization_layer(dataa)
 
     return encoded_data
-def user_embedding(data, my_vect_model, mlb_skills, normalization_layer, encoder_skills):
-    the_vector=pipe_for_sim(data, my_vect_model, mlb_skills, encoder_skills)
+def user_embedding(data, my_vect_model, mlb_skills, normalization_layer, encoder_skills,level_enc, provider_enc, type_enc):
+    the_vector=pipe_for_sim(data, my_vect_model, mlb_skills, encoder_skills,level_enc, provider_enc, type_enc)
 
     matrix = np.stack(the_vector.values)  # shape=(N, D), dtype=float
 
@@ -119,9 +128,31 @@ def user_embedding(data, my_vect_model, mlb_skills, normalization_layer, encoder
     return encoded_data
 #AWHAT = pipe_for_sim(data)
 def main():
+    #from sklearn.preprocessing import OneHotEncoder
+    #import joblib
 
-    my_vect_model = SentenceTransformer("paraphrase-MiniLM-L12-v2")
+    #import pandas as pd
+    #def level_handler(dataaaaaaa):
+    #    if isinstance(dataaaaaaa, list):
+    #        if len(dataaaaaaa) ==1:
+    #            return dataaaaaaa[0]
+    #        else: return "mixed"
+    #    else: return dataaaaaaa 
+    #dataa['level'] = dataa['level'].apply(level_handler)
+    ## Suppose df_all is your full combined dataset
+    #level_enc = OneHotEncoder(sparse_output=False, handle_unknown='ignore').fit(dataa[['level']])
+    #provider_enc = OneHotEncoder(sparse_output=False, handle_unknown='ignore').fit(dataa[['provider']])
+    #type_enc = OneHotEncoder(sparse_output=False, handle_unknown='ignore').fit(dataa[['type']])
+
+    ## Save them
+    #joblib.dump(level_enc, '../recommendatoin_systems/final_Models/level_enc.pkl')
+    #joblib.dump(provider_enc, '../recommendatoin_systems/final_Models/provider_enc.pkl')
+    #joblib.dump(type_enc, '../recommendatoin_systems/final_Models/type_enc.pkl')
+    
+
+
     dataa = pd.read_json('./combined_dataset.json').copy()
+    my_vect_model = SentenceTransformer("paraphrase-MiniLM-L12-v2")
     mlb_skill = joblib.load('../recommendatoin_systems/final_Models/mlb_skill.pkl')
     input_shape = 11898
     encoder_skill = Autoencoder(input_shape, latent_dim=24)
