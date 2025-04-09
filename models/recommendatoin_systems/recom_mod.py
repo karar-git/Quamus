@@ -36,7 +36,7 @@ def get_score(query_embedding, course_embedding, new_personality):
     
 
     
-def recommend(user_query, top=5, top_k=40):
+def recommend_1(user_query, course_embeddings, query_model, top=5, top_k=40):
     # Encode query
     query_embedding = query_model.encode(user_query)
     query_embedding = tf.convert_to_tensor(query_embedding, dtype=tf.float32)
@@ -48,14 +48,23 @@ def recommend(user_query, top=5, top_k=40):
     # Get top candidates
     topk = tf.math.top_k(query_sim, top_k).indices
     
-    if nu_of_interaction > -1:
-        personality_sim = cos_sim(personality_vector, tf.gather(course_embeddings, topk))
-        hybrid_scores = 0.8 * tf.gather(query_sim, topk) + 0.2 * personality_sim
-        sorted_indices = tf.argsort(hybrid_scores, direction='DESCENDING')
-        return tf.gather(topk, sorted_indices)[:top]
+    #if nu_of_interaction > 3:
+    #    personality_sim = cos_sim(personality_vector, tf.gather(course_embeddings, topk))
+    #    hybrid_scores = 0.8 * tf.gather(query_sim, topk) + 0.2 * personality_sim
+    #    sorted_indices = tf.argsort(hybrid_scores, direction='DESCENDING')
+    #    return tf.gather(topk, sorted_indices)[:top]
     
     sorted_indices = tf.argsort(tf.gather(query_sim, topk), direction='DESCENDING')
     return tf.gather(topk, sorted_indices)[:top]
+def recommend(user_query, course_embeddings, query_model, course_data , top=5, top_k=40):
+    recommended_courses = recommend_1(user_query, course_embeddings , query_model)
+    text = []
+    for course in recommended_courses:
+        course  = course.numpy()
+        course_idx = course.item()  
+        course = course_data.iloc[course_idx]
+        text.append(f"course: {course['course_name']}, duration: {course['Duration']},level: {course['level']}, skills: {course['skills']}, provider : {course['provider']}, url : {course['url']}, type: {course['type']}, orginization: {course['organization']}")
+    return '\n '.join(text)
 
 def main():
     course_data = pd.read_json('../various_preprocessing/combined_dataset.json')
@@ -76,7 +85,7 @@ def main():
     # example usage:
     user_query = "ayoooo, i wanna learn nlp in practical way"
     user_query='i wanna learn linear algebra rigorosly'
-    recommended_courses = recommend(user_query, top=5)
+    recommended_courses = recommend(user_query, course_embeddings , query_model, course_data)
     for course in recommended_courses:
         course  = course.numpy()
         course_idx = course.item()  

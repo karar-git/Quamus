@@ -1,14 +1,14 @@
 #global variables
 import joblib
-from tensorflow import Variable, zeros
-
-from tensorflow.keras import layers, Model, utils
-#from tensorflow.keras.callbacks import EarlyStopping
+#from tensorflow import Variable, zeros
+#
+#from tensorflow.keras import layers, Model, utils
+##from tensorflow.keras.callbacks import EarlyStopping
 from sentence_transformers import SentenceTransformer
-from tensorflow.keras.callbacks import ModelCheckpoint
-import numpy as np
+#from tensorflow.keras.callbacks import ModelCheckpoint
 import pandas as pd
 
+import numpy as np
 #combined_dataset = pd.read_json('/home/karar/Desktop/recom/data_scraping/preprocessed/combined_dataset.json')
 import tensorflow as tf
 
@@ -27,38 +27,40 @@ from PyQt6.QtGui import QIcon, QPixmap, QMovie
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'models'))
 
-import recommendatoin_systems.two_tower_model
+#import recommendatoin_systems.two_tower_model
 from chatbot import bot
-from various_preprocessing.utils import Autoencoder
-from recommendatoin_systems.personality_nn import VectorCombiner
+#from various_preprocessing.utils import Autoencoder
+#from recommendatoin_systems.personality_nn import VectorCombiner
 users_file = "users.json"
 
 
-items_embedd = np.load('./item_embedding.npy')
-items_embedd = np.stack(items_embedd)
-items_embedd = tf.convert_to_tensor(items_embedd , dtype=tf.float32)
-
-user_personality = Variable(zeros([len(items_embedd[1])]))
-vec_dim = len(items_embedd[1])
-
+items_embedd = np.load('../models/data/encoded_data.npy')
 my_vect_model = SentenceTransformer("paraphrase-MiniLM-L12-v2")
-mlb_skill = joblib.load('../models/recommendatoin_systems/final_Models/mlb_skill.pkl')
+#items_embedd = np.stack(items_embedd)
+#items_embedd = tf.convert_to_tensor(items_embedd , dtype=tf.float32)
 
-skill_dim= 11898
-encoder_skill = Autoencoder(skill_dim, latent_dim=24)
+#user_personality = Variable(zeros([len(items_embedd[1])]))
+#vec_dim = len(items_embedd[1])
 
-dummy_input = tf.keras.Input(shape=(skill_dim,))
-encoder_skill(dummy_input)  # Build the model
-encoder_skill.load_weights('../models/recommendatoin_systems/final_Models/autoencoderweights.weights.h5')
-#normalization_layer = tf.keras.layers.Normalization()
-
-normalization_layer = tf.keras.models.load_model(
-    '../models/recommendatoin_systems/final_Models/norm_layer.keras',
-    custom_objects={'Normalization': tf.keras.layers.Normalization}
-)
-#normalization_layer = tf.keras.models.load_model('../models/recommendatoin_systems/final_Models/norm_layer')
-
-
+#my_vect_model = SentenceTransformer("paraphrase-MiniLM-L12-v2")
+#mlb_skill = joblib.load('../models/recommendatoin_systems/final_Models/mlb_skill.pkl')
+#
+#skill_dim= 11898
+#encoder_skill = Autoencoder(skill_dim, latent_dim=24)
+#
+#dummy_input = tf.keras.Input(shape=(skill_dim,))
+#encoder_skill(dummy_input)  # Build the model
+#encoder_skill.load_weights('../models/recommendatoin_systems/final_Models/autoencoderweights.weights.h5')
+##normalization_layer = tf.keras.layers.Normalization()
+#
+#normalization_layer = tf.keras.models.load_model(
+#    '../models/recommendatoin_systems/final_Models/norm_layer.keras',
+#    custom_objects={'Normalization': tf.keras.layers.Normalization}
+#)
+##normalization_layer = tf.keras.models.load_model('../models/recommendatoin_systems/final_Models/norm_layer')
+#level_enc=joblib.load('../models/recommendatoin_systems/final_Models/level_enc.pkl')
+#provider_enc=joblib.load('../models/recommendatoin_systems/final_Models/provider_enc.pkl')
+#type_enc= joblib.load('../models/recommendatoin_systems/final_Models/type_enc.pkl')
 
 
 def load_users():
@@ -527,7 +529,7 @@ class ModernChatbot(QWidget):
                        ("Natural Language Processing", 103), ("Computer Vision Basics", 104)]
             return courses
         else:
-            return bot.handle_message(message, my_vect_model, mlb_skill, normalization_layer , encoder_skill)
+            return bot.handle_message(message, items_embedd, my_vect_model)#mlb_skill, normalization_layer , encoder_skill, level_enc, provider_enc, type_enc)
 
 app = QApplication(sys.argv)
 app.setStyleSheet("""

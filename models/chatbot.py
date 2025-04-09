@@ -3,6 +3,7 @@
 # in the recommend function of the recommender let it update the user personality vector
 import google.generativeai as genai
 from various_preprocessing.similarity_preprocessing import user_embedding
+from recommendatoin_systems.recom_mod import recommend
 import pandas as pd
 import re
 
@@ -31,7 +32,7 @@ class CourseRecommenderBot:
         level: <Beginner|Intermediate|Advanced|mix|N/A>
         skills: <comma-separated list>
         type: <course|project|N/A>
-        duration: <number in hours|N/A> if u can inference it, u can like if it is short then around 2 hourse, 15 for mid, 30 for long courses, if u can't inference it just let it be N/A
+        Duration: <number in hours|N/A> if u can inference it, u can like if it is short then around 2 hourse, 15 for mid, 30 for long courses, if u can't inference it just let it be N/A
         provider: <coursera|edx|N/A>
         number_of_recommendation: <maximam is 10, default is 5>
         do not lower the case or capilize it, just as how i wrote it (Beginner not beginner, mix not Mix)
@@ -50,7 +51,7 @@ class CourseRecommenderBot:
         })
     
     def _extract_structured_data(self, response):
-        pattern = r'(description|level|skills|type|duration|provider|number_of_recommendation):\s*(.*)'
+        pattern = r'(description|level|skills|type|Duration|provider|number_of_recommendation):\s*(.*)'
         matches = re.findall(pattern, response)
         return {k: v.strip() for k, v in matches}
     
@@ -58,20 +59,22 @@ class CourseRecommenderBot:
     #    missing = [field for field in self.required_fields if not data.get(field) or data[field].lower() == 'n/a']
     #    return missing
     
-    def _generate_recommendations(self, criteria, user_input, my_vect_model, mlb_skills, normalization_layer, encoder_skills):
-        user_vector = pd.DataFrame(columns = self.combined_dataset.columns)
-        if criteria != {}:
-            criteria['skills'] = criteria['skills'].split(',') if criteria['skills'] != "N/A" else ['NaN']
-            for i in list(criteria.keys())[:-1]:
-                if criteria[i] != "N/A":
-                   user_vector[i] = criteria[i]
-            user_vector['title'] = ""
-        else:
-            user_vector['description'] = self.holy_message
-        user_vector = user_embedding(user_vector, my_vect_model, mlb_skills, normalization_layer, encoder_skills)
+    def _generate_recommendations(self, item_embedding, my_vect_model):#criteria, user_input, item_embedding, my_vect_model):#, mlb_skills, normalization_layer, encoder_skills, level_enc, provider_enc, type_enc):
+        #@user_vector = pd.DataFrame(columns = self.combined_dataset.columns)
+        #@if criteria != {}:
+        #@    #criteria['skills'] = criteria['skills'].split(',') if criteria['skills'] != "N/A" else ['NaN']
+        #@    #for i in list(criteria.keys())[:-1]:
+        #@    #    if criteria[i] != "N/A":
+        #@    #       user_vector[i] = criteria[i]
+        #@    #user_vector['title'] = ""
+        #@    user_vector['description'] = self.holy_message
+        #@    user_vector['Duration'] = criteria["Duration"]
+        #@else:
+        #@    user_vector['description'] = self.holy_message
+        #@user_vector = user_embedding(user_vector, my_vect_model, mlb_skills, normalization_layer, encoder_skills, level_enc, provider_enc, type_enc)
         
-        recommendations = recom.recommend(user_vector)
-        formatted_response = self._format_with_llm(self.combined_dataset[recommendations])
+        recommendations = recommend(self.holy_message, item_embedding, my_vect_model, self.combined_dataset)
+        formatted_response = self._format_with_llm(recommendations)#self.combined_dataset[recommendations])
         return formatted_response
     
     def _format_with_llm(self, recommendations):
@@ -88,7 +91,7 @@ class CourseRecommenderBot:
     
         response = self.model.generate_content(prompt)
         return response.text
-    def handle_message(self, user_input, my_vect_model, mlb_skills, normalizatoin_layer, encoder_skills):
+    def handle_message(self, user_input, item_embedding, my_vect_model):#my_vect_model, mlb_skills, normalizatoin_layer, encoder_skills, level_enc, provider_enc, type_enc):
         # Add user message to history
         self._append_to_history("user", user_input)
         
@@ -105,13 +108,13 @@ class CourseRecommenderBot:
         
         else:
             # Extract structured data
-            data = self._extract_structured_data(response)
-            print(data)
+            #data = self._extract_structured_data(response)
+            #print(data)
 
 
 
             self.holy_message =user_input 
-            formatted_response= self._generate_recommendations(data, user_input, my_vect_model, mlb_skills, normalizatoin_layer,encoder_skills)
+            formatted_response= self._generate_recommendations(item_embedding, my_vect_model )#data, user_input, my_vect_model, mlb_skills, normalizatoin_layer,encoder_skills, level_enc, provider_enc, type_enc)
             #rec_text = "\n".join(recommendations)
             #formatted_response = f"RECOMMEND: Here are some courses you might like:\n{rec_text}"
             self._append_to_history("assistant", formatted_response)
