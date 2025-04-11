@@ -90,4 +90,3 @@ Teeba Nazar on the GUI
 
 Karar Haitham for the Recommendation system, Data Scraping, and Preprocessing
 [LinkedIn](https://www.linkedin.com/in/karar-haitham-6808b535b/) • [GitHub](https://github.com/karar-git/)
-https://www.linkedin.com/in/karar-haitham-6808b535b/
