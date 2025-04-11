@@ -16,7 +16,7 @@ def create_payload(page):
     return {
         "requests": [
             {
-                "indexName": "product",  # Replace with the correct index name from the request
+                "indexName": "product", 
                 "params": f"clickAnalytics=true&facetFilters=%5B%5B%22product%3AProgram%22%5D%5D&page={page}&hitsPerPage=24"
             }
         ]

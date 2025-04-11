@@ -6,7 +6,7 @@ url = "https://igsyv1z1xi-dsn.algolia.net/1/indexes/*/queries"
 
 # Headers
 headers = {
-    "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:134.0) Gecko/20100101 Firefox/134.0",
+    #"User-Agent": ensure to put a user agent,
     "Content-Type": "application/json",
     "X-Algolia-API-Key": "6658746ce52e30dacfdd8ba5f8e8cf18",
     "X-Algolia-Application-Id": "IGSYV1Z1XI",

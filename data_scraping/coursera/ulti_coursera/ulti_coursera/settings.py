@@ -15,8 +15,6 @@ NEWSPIDER_MODULE = "ulti_coursera.spiders"
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #UUSER_AGENT = "ulti_coursera (+http://www.yourdomain.com)"
-#USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64; rv:134.0) Gecko/20100101 Firefox/134.0"
-USER_AGENT = "Mozilla/5.0 (Linux x86_64) AppleWebKit/537.41 (KHTML, like Gecko) Chrome/47.0.3745.199 Safari/533"
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = False
