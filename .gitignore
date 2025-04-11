@@ -4,6 +4,7 @@
 **/*.tex
 **/*.pdf
 #**/*.json
+Tighba_gui/users.json
 
 #models/recommendation_systems/final_Models
 # Exception for a specific JSON file
