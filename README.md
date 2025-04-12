@@ -58,7 +58,7 @@ Go to models/chatbot.py
 
 ### 4. Run the chatbot:
 ```bash
-python chatbot.py
+python login_page.py
 ```
 
 ---
