@@ -2,6 +2,7 @@
 import joblib
 #from tensorflow import Variable, zeros
 #
+import markdown
 #from tensorflow.keras import layers, Model, utils
 ##from tensorflow.keras.callbacks import EarlyStopping
 from sentence_transformers import SentenceTransformer
@@ -355,8 +356,11 @@ class MessageBubble(QFrame):
                 layout.addStretch()
 
         else:
-            label = QLabel(text)
+            html_text = markdown.markdown(text)
+            label = QLabel()
+            label.setTextFormat(Qt.TextFormat.RichText)
             label.setWordWrap(True)
+            label.setText(html_text)
             if sender == "User":
                 label.setStyleSheet("background-color:white; border-radius: 10px; padding: 10px")
                 layout.addStretch()

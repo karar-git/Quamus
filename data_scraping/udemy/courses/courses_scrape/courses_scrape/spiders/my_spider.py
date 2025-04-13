@@ -101,7 +101,9 @@ class UdemySpider(scrapy.Spider):
         yield scrapy.Request(
             url=f'https://www.udemy.com/api-2.0/courses/{course_id}?fields[course]=description',
             callback=self.parse_description,
-            meta={'course_data': course_data, 'retry_count': 0}  # Initialize retry count
+            meta={'course_data': course_data, 'retry_count': 0, 'course_id' : course_id},
+            dont_filter=True
+            # Initialize retry count
         )
 
     def parse_description(self, response):
@@ -119,7 +121,7 @@ class UdemySpider(scrapy.Spider):
         if retry_count >= 3:
             # Log the MAIN course URL (not the API endpoint)
             self.logger.error(f"Failed to fetch description for: {course_data['course_url']}")
-            self.log_failed_request(course_data['course_id'])  # Log to file
+            self.log_failed_request(response.meta['course_id'])  # Log to file
             return
 
         time.sleep(10)

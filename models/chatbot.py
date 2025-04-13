@@ -7,7 +7,8 @@ from recommendatoin_systems.recom_mod import recommend
 import pandas as pd
 import re
 
-genai.configure(api_key="AIzaSyA4MILwVj31XawUJSt3xmdsS2yDRA3wnGY")
+genai.configure(api_key="AIzaSyBAhenlx4qovu_GnrgSswFeapCUbKqLX84")
+
 
 class CourseRecommenderBot:
     def __init__(self, dataset):
@@ -114,7 +115,7 @@ class CourseRecommenderBot:
 
 
             self.holy_message =user_input 
-            formatted_response= self._generate_recommendations(item_embedding, my_vect_model )#data, user_input, my_vect_model, mlb_skills, normalizatoin_layer,encoder_skills, level_enc, provider_enc, type_enc)
+            formatted_response= self._generate_recommendations(item_embedding, my_vect_model ).split("RECOMMENDED: ")[-1].strip()#data, user_input, my_vect_model, mlb_skills, normalizatoin_layer,encoder_skills, level_enc, provider_enc, type_enc)
             #rec_text = "\n".join(recommendations)
             #formatted_response = f"RECOMMEND: Here are some courses you might like:\n{rec_text}"
             self._append_to_history("assistant", formatted_response)
