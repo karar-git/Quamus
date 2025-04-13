@@ -1,9 +1,11 @@
+
 # Ignore specific file types globally
 **/*.csv
 #**/*.npy
 **/*.tex
 **/*.pdf
 #**/*.json
+data_scraping/udemy/courses/courses_scrape/courses_scrape/spiders/output.json
 Tighba_gui/users.json
 
 #models/recommendation_systems/final_Models
