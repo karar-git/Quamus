@@ -86,7 +86,7 @@ GPL License
 ## 👨‍💻 Authors
 
 Teeba Nazar on the GUI
-[LinkedIn](https://www.linkedin.com/in//) • [GitHub](https://github.com/teeba3/)
+[GitHub](https://github.com/teeba3/)
 
 Karar Haitham for the Recommendation system, Data Scraping, and Preprocessing
 [LinkedIn](https://www.linkedin.com/in/karar-haitham-6808b535b/) • [GitHub](https://github.com/karar-git/)
