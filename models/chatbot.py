@@ -7,7 +7,7 @@ from recommendatoin_systems.recom_mod import recommend
 import pandas as pd
 import re
 
-genai.configure(api_key="AIzaSyBAhenlx4qovu_GnrgSswFeapCUbKqLX84")
+genai.configure(api_key="put a vaild api")
 
 
 class CourseRecommenderBot:
