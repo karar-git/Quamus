@@ -54,7 +54,6 @@ pip install discover them ur self
 
 ### 3. Set your **Gemini API** key:
 Go to models/chatbot.py
-```
 
 ### 4. Run the chatbot:
 ```bash
